@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('PHONE2', 10)->nullable();
             $table->string('ADDRESS')->nullable();
             $table->string('REMARK')->nullable();
+            $table->decimal('sold', 10, 2);
             $table->timestamps();
         });
     }
