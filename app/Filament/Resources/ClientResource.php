@@ -91,10 +91,43 @@ class ClientResource extends Resource
                 TextInput::make('remark')
                 ->maxLength(255),
 
-                Select::make('car_id')
-                ->relationship('cars', 'model')
-                ->searchable()
-                ->preload(),
+
+                //  Select::make('car_id')
+                //  ->relationship('cars', 'model')
+                //  ->searchable()
+                //  ->preload(),
+
+
+
+
+                Section::make('Client cars')->schema([
+                    Repeater::make('cars')
+                    ->schema([
+
+                 Select::make('car_id')
+                 ->relationship('cars', 'model')
+                 ->searchable()
+                 ->preload()
+                 ->distinct()
+                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                 ->reactive(),
+                 ])
+                 ])
+
+                //  Section::make('Client cars')->schema([
+                //     Repeater::make('cars')
+                //     ->relationship()
+                //     ->schema([
+                //         Select::make('car_id')
+                //         ->relationship('cars', 'mat')
+                //         ->searchable()
+                //         ->preload()
+                //        // ->distinct()
+                //        // ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                //         ->columnSpan(4)//ccs
+                //          ->reactive(),
+                //          ])->columnSpanFull()
+                //          ])
             ]);
     }
 

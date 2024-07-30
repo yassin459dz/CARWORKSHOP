@@ -10,6 +10,7 @@ class Client extends Model
     use HasFactory;
 
     protected $fillable = [
+        'car_id', // Ensure this is present if you want to link to CAR
         'name',
         'phone',
         'phone2',
