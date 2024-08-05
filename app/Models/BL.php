@@ -10,14 +10,17 @@ class BL extends Model
     use HasFactory;
     protected $fillable = [
         'client_id',
-        'cars_id',
-        'DEVI_NUMBER',
-        'PRODUCT',
-        'PRICE',
-        'QTE',
-        'KM',
-        'TOTAL',
-        'REMARK',
+        'car_id',
+        'matricule_id',
+        'km',
+        'mat',
+        'bl_number',
+        'product',
+        'price',
+        'qte',
+        'km',
+        'total',
+        'remark',
     ];
     public function client()
     {
@@ -28,4 +31,21 @@ class BL extends Model
     {
         return $this->hasMany(car::class);
     }
+
+    public function brand()
+    {
+        return $this->hasMany(Brand::class);
+    }
+
+    // public function matricule()
+    // {
+    //     return $this->hasMany(matricule::class);
+    // }
+
+    public function matricule()
+    {
+        return $this->belongsTo(Matricule::class); // Changed from hasMany to belongsTo
+    }
+
+
 }

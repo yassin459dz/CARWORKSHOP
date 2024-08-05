@@ -72,29 +72,29 @@ class CarResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('client_id')
-                ->required()
-                ->searchable()
-                ->preload()
-                ->relationship('client' , 'name'),
+            //     Select::make('client_id')
+            //    // ->required()
+            //     ->searchable()
+            //     ->preload()
+            //     ->relationship('client' , 'name'),
 
-                TextInput::make('brand')
-                ->required(),
+                // TextInput::make('brand')
+                // ->required(),
 
                 TextInput::make('model')
                 ->required(),
 
-                TextInput::make('color')
-                ->required(),
+                // TextInput::make('color')
+                // ->required(),
 
-                TextInput::make('mat')
-                ->required(),
+                // TextInput::make('mat')
+                // ->required(),
 
-                TextInput::make('km')
-                ->numeric(),
+                // TextInput::make('km')
+                // ->numeric(),
 
-                TextInput::make('remark')
-                ->maxLength(255),
+                // TextInput::make('remark')
+                // ->maxLength(255),
             ]);
     }
 

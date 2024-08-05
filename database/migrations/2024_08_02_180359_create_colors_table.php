@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('clients', function (Blueprint $table) {
-           // $table->foreignId('car_id')->nullable()->constrained('cars')->cascadeOnDelete()->after('id');
+        Schema::create('colors', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('car_id')->constrained('cars')->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 
@@ -21,9 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('clients', function (Blueprint $table) {
-         //   $table->dropForeign(['car_id']);
-          //  $table->dropColumn('car_id');
-        });
+        Schema::dropIfExists('colors');
     }
 };
