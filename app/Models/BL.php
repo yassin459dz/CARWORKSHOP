@@ -18,7 +18,6 @@ class BL extends Model
         'product',
         'price',
         'qte',
-        'km',
         'total',
         'remark',
     ];

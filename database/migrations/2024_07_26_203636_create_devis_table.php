@@ -11,17 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('devis', function (Blueprint $table) {
+        Schema::create('workons', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
-            $table->foreignId('cars_id')->constrained('clients')->cascadeOnDelete();
-            $table->unsignedInteger('DEVI_NUMBER')->unique();
-            $table->unsignedBigInteger('KM');
-            $table->string('PRODUCT');
-            $table->decimal('PRICE', 10, 2);
-            $table->integer('QTE');
-            $table->decimal('TOTAL', 10, 2);
-            $table->string('REMARK')->nullable();
             $table->timestamps();
         });
     }
@@ -31,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('devis');
+        Schema::dropIfExists('workons');
     }
 };

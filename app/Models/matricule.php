@@ -19,10 +19,7 @@ class Matricule extends Model
 
     ];
 
-    public function car()
-    {
-        return $this->belongsTo(Car::class);
-    }
+
 
     public function client()
     {
@@ -30,6 +27,11 @@ class Matricule extends Model
     }
      public function bl() {
          return $this->hasMany(BL::class);
+     }
+
+     public function car()
+     {
+         return $this->belongsTo(Car::class);
      }
 
 }

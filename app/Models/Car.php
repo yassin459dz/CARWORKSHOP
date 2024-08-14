@@ -28,9 +28,11 @@ class Car extends Model
         return $this->hasMany(BL::class);
     }
 
-    public function matricule() {
-        return $this->hasMany(Matricule::class);
+    public function matricule()
+    {
+        return $this->hasOne(Matricule::class);
     }
+
 
     // public function color() {
     //     return $this->hasMany(Color::class);

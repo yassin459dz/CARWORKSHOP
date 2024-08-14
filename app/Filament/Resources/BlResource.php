@@ -72,6 +72,7 @@ class BlResource extends Resource
 {
     protected static ?string $model = Bl::class;
 
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -95,74 +96,95 @@ class BlResource extends Resource
                             TextInput::make('name')->required(),
                             TextInput::make('phone')->required(),
                         ])
-                        ->reactive()
+                        ->live()
                         ->afterStateUpdated(function ($state, $set) {
                             $client = Client::find($state);
                             if ($client) {
                                 $firstCar = $client->cars()->first();
                                 if ($firstCar) {
                                     $set('car_id', $firstCar->id);
+
+                                    // Set the car options
+                                    $carsRelated = $client->cars()->pluck('model', 'id')->toArray();
+                                    $otherCars = Car::whereNotIn('id', array_keys($carsRelated))->pluck('model', 'id')->toArray();
+                                    $carOptions = [
+                                        'Related Cars' => $carsRelated,
+                                        'Other Cars' => $otherCars,
+                                    ];
+                                    $set('car_options', $carOptions);
+
+                                    // Find and set the mat value
+                                    $matricule = Matricule::where('client_id', $client->id)
+                                        ->where('car_id', $firstCar->id)
+                                        ->first();
+                                    $set('matricule_id', $matricule ? $matricule->mat : '');
                                 } else {
                                     $set('car_id', null);
+                                    $set('car_options', []);
+                                    $set('matricule_id', '');
                                 }
-
-                                // Update the car options based on the selected client
-                                $carsRelated = $client->cars()->pluck('model', 'id')->toArray(); // Adjust 'model' to the correct column name
-                                $otherCars = Car::whereNotIn('id', array_keys($carsRelated))->pluck('model', 'id')->toArray(); // Adjust 'model' to the correct column name
-                                $carOptions = [
-                                    'Related Cars' => $carsRelated,
-                                    'Other Cars' => $otherCars,
-                                ];
                             } else {
-                                $carOptions = [
-                                    'Related Cars' => [],
-                                    'Other Cars' => Car::pluck('model', 'id')->toArray(), // Adjust 'model' to the correct column name
-                                ];
+                                $set('car_id', null);
+                                $set('car_options', []);
+                                $set('matricule_id', '');
                             }
-                            $set('car_options', $carOptions);
                         }),
 
-                    Select::make('car_id')
+
+                        Select::make('car_id')
                         ->label('Car')
                         ->searchable()
                         ->options(function ($get) {
                             return $get('car_options') ?: [];
                         })
-                        ->reactive(),
+                        ->createOptionForm([
+                            TextInput::make('model')->required(),
+                        ])
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            $clientId = $get('client_id');
+                            if ($clientId && $state) {
+                                // Find the related matricule and set the mat value
+                                $matricule = Matricule::where('client_id', $clientId)
+                                    ->where('car_id', $state)
+                                    ->first();
+                                $set('matricule_id', $matricule ? $matricule->mat : '');
+                            } else {
+                                $set('matricule_id', '');
+                            }
+                        }),
 
 
-                        Group::make()
-                            ->relationship('matricule')
-                            ->schema([
-                                TextInput::make('mat')
-                                    ->required(),
-                                TextInput::make('km')
-                                    ->required()
-                                    ->dehydrated(),
 
-                                TextInput::make('client_id')
-                                    ->required(),
-                                TextInput::make('car_id')
-                                    ->required(),
-                                    ])
+
+                            TextInput::make('matricule_id')
+                            ->label('Matricule')
+                            ->live(),
+
+
                             ]),
 
 
-                        // SELECT THE Matricule //////////////
-                            // Select::make('matricule_id')
-                            // ->label('matricule')
-                            // ->relationship('matricule', 'mat')
-                            // ->searchable()
-                            // ->preload()
-                            // // ->getSearchResultsUsing(fn (string $search): array => Client::where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id')->toArray())
-                            // // ->getOptionLabelUsing(fn ($value): ?string => Client::find($value)?->name)
-                            // ->createOptionForm([
-                            //     TextInput::make('mat')
-                            //         ->required(),
-                            //     TextInput::make('km')
-                            //         ->required(),
+                        // Group::make()
+                        //     ->relationship('matricule')
+                        //     ->schema([
+                        //         TextInput::make('mat')
+                        //             ->required(),
+                        //         TextInput::make('km')
+                        //             ->required()
+                        //             ->dehydrated(),
 
-                            // ]),
+                        //         TextInput::make('client_id')
+                        //             ->required(),
+                        //         TextInput::make('car_id')
+                        //             ->required(),
+                        //             ])
+                        //     ]),
+
+
+
+
+
                     Wizard\Step::make('Delivery')
                         ->schema([
 
