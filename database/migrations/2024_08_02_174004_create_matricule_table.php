@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('matricules', function (Blueprint $table) {
             $table->id(); // default is unsignedBigInteger
-            $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
-            $table->foreignId('car_id')->constrained('cars')->cascadeOnDelete();
+            $table->foreignId('client_id')->nullable()->constrained('clients')->cascadeOnDelete();
+            $table->foreignId('car_id')->nullable()->constrained('cars')->cascadeOnDelete();
             $table->string('mat');
-            $table->unsignedInteger('km');
+            $table->unsignedInteger('km')->nullable();
             $table->string('anne')->nullable();
             $table->string('work')->nullable();
             $table->string('remark')->nullable();

@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\hidden;
 
 use App\Filament\Resources\UserResource\RelationManagers\OrdersRelationManager;
 use Filament\Resources\Pages\Page;
@@ -104,7 +105,6 @@ class BlResource extends Resource
                                 if ($firstCar) {
                                     $set('car_id', $firstCar->id);
 
-                                    // Set the car options
                                     $carsRelated = $client->cars()->pluck('model', 'id')->toArray();
                                     $otherCars = Car::whereNotIn('id', array_keys($carsRelated))->pluck('model', 'id')->toArray();
                                     $carOptions = [
@@ -113,25 +113,31 @@ class BlResource extends Resource
                                     ];
                                     $set('car_options', $carOptions);
 
-                                    // Find and set the mat value
                                     $matricule = Matricule::where('client_id', $client->id)
                                         ->where('car_id', $firstCar->id)
                                         ->first();
-                                    $set('matricule_id', $matricule ? $matricule->mat : '');
+                                    if ($matricule) {
+                                        $set('matricule_id', $matricule->id);
+                                        $set('matricule', $matricule->mat);
+                                    } else {
+                                        $set('matricule_id', null);
+                                        $set('matricule', '');
+                                    }
                                 } else {
                                     $set('car_id', null);
                                     $set('car_options', []);
-                                    $set('matricule_id', '');
+                                    $set('matricule_id', null);
+                                    $set('matricule', '');
                                 }
                             } else {
                                 $set('car_id', null);
                                 $set('car_options', []);
-                                $set('matricule_id', '');
+                                $set('matricule_id', null);
+                                $set('matricule', '');
                             }
                         }),
 
-
-                        Select::make('car_id')
+                    Select::make('car_id')
                         ->label('Car')
                         ->searchable()
                         ->options(function ($get) {
@@ -144,42 +150,46 @@ class BlResource extends Resource
                         ->afterStateUpdated(function ($state, $set, $get) {
                             $clientId = $get('client_id');
                             if ($clientId && $state) {
-                                // Find the related matricule and set the mat value
                                 $matricule = Matricule::where('client_id', $clientId)
                                     ->where('car_id', $state)
                                     ->first();
-                                $set('matricule_id', $matricule ? $matricule->mat : '');
+                                if ($matricule) {
+                                    $set('matricule_id', $matricule->id);
+                                    $set('matricule', $matricule->mat);
+                                } else {
+                                    $set('matricule_id', null);
+                                    $set('matricule', '');
+                                }
                             } else {
-                                $set('matricule_id', '');
+                                $set('matricule_id', null);
+                                $set('matricule', '');
                             }
+                        }),
+
+                    TextInput::make('matricule')
+                        ->label('Matricule')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $set, $get) {
+                            // Store the updated matricule state without saving
+                            $clientId = $get('client_id'); // Ensure client_id is available
+                            $carId = $get('car_id'); // Ensure car_id is available
+
+                            if (!$clientId || !$carId) {
+                                $set('matricule_id', null);
+                                return;
+                            }
+
+                            $set('matricule', $state); // Store the matricule state
                         }),
 
 
 
 
-                            TextInput::make('matricule_id')
-                            ->label('Matricule')
-                            ->live(),
+                      TextInput::make('matricule_id')
+                          ->label('Matricule ID'),
 
 
                             ]),
-
-
-                        // Group::make()
-                        //     ->relationship('matricule')
-                        //     ->schema([
-                        //         TextInput::make('mat')
-                        //             ->required(),
-                        //         TextInput::make('km')
-                        //             ->required()
-                        //             ->dehydrated(),
-
-                        //         TextInput::make('client_id')
-                        //             ->required(),
-                        //         TextInput::make('car_id')
-                        //             ->required(),
-                        //             ])
-                        //     ]),
 
 
 
@@ -187,6 +197,10 @@ class BlResource extends Resource
 
                     Wizard\Step::make('Delivery')
                         ->schema([
+
+                            TextInput::make('km')
+                            ->required()
+                            ->numeric(),
 
                             TextInput::make('bl_number')
                             ->required(),
@@ -209,6 +223,39 @@ class BlResource extends Resource
                             ->maxLength(255),
                         ]),
                 ])
+
+                // ->saved(function ($record, $form) {
+                //     $matricule = $form->getState()['matricule'];
+                //     $clientId = $form->getState()['client_id'];
+                //     $carId = $form->getState()['car_id'];
+
+                //     if ($matricule) {
+                //         $existingMatricule = Matricule::where('mat', $matricule)->first();
+
+                //         if ($existingMatricule) {
+                //             $existingMatricule->update([
+                //                 'client_id' => $clientId,
+                //                 'car_id' => $carId,
+                //             ]);
+                //             $form->model()->matricule_id = $existingMatricule->id;
+                //         } else {
+                //             $newMatriculeId = Matricule::max('id') + 1;
+
+                //             $newMatricule = Matricule::create([
+                //                 'mat' => $matricule,
+                //                 'client_id' => $clientId,
+                //                 'car_id' => $carId,
+                //                 'id' => $newMatriculeId,
+                //             ]);
+
+                //             $form->model()->matricule_id = $newMatricule->id;
+                //         }
+                //     }
+                // })
+
+
+
+
             ]);
     }
 

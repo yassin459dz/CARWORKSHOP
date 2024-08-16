@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id(); // default is unsignedBigInteger
             $table->foreignId('client_id')->constrained('clients')->cascadeOnDelete();
             $table->foreignId('car_id')->constrained('cars')->cascadeOnDelete();
-            $table->foreignId('matricule_id')->nullable()->constrained('matricules')->cascadeOnDelete();
+            $table->foreignId('matricule_id')->constrained('matricules')->cascadeOnDelete();
             $table->unsignedInteger('bl_number')->unique();
             $table->string('product');
+            $table->unsignedInteger('km');
             $table->decimal('price', 10, 2);
             $table->integer('qte');
             $table->decimal('total', 10, 2);
-            $table->string('remark')->nullable();
+            //$table->string('remark')->nullable();
             $table->timestamps();
         });
     }
