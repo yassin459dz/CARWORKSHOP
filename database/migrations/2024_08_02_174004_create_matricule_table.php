@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id(); // default is unsignedBigInteger
             $table->foreignId('client_id')->nullable()->constrained('clients')->cascadeOnDelete();
             $table->foreignId('car_id')->nullable()->constrained('cars')->cascadeOnDelete();
-            $table->string('mat');
+            $table->string('mat')->nullable();
             $table->unsignedInteger('km')->nullable();
             $table->string('anne')->nullable();
+            $table->string('color')->nullable();
             $table->string('work')->nullable();
             $table->string('remark')->nullable();
             $table->timestamps();

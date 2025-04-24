@@ -96,46 +96,7 @@ class BlResource extends Resource
                         ->editOptionForm([
                             TextInput::make('name')->required(),
                             TextInput::make('phone')->required(),
-                        ])
-                        ->live()
-                        ->afterStateUpdated(function ($state, $set) {
-                            $client = Client::find($state);
-                            if ($client) {
-                                $firstCar = $client->cars()->first();
-                                if ($firstCar) {
-                                    $set('car_id', $firstCar->id);
-
-                                    $carsRelated = $client->cars()->pluck('model', 'id')->toArray();
-                                    $otherCars = Car::whereNotIn('id', array_keys($carsRelated))->pluck('model', 'id')->toArray();
-                                    $carOptions = [
-                                        'Related Cars' => $carsRelated,
-                                        'Other Cars' => $otherCars,
-                                    ];
-                                    $set('car_options', $carOptions);
-
-                                    $matricule = Matricule::where('client_id', $client->id)
-                                        ->where('car_id', $firstCar->id)
-                                        ->first();
-                                    if ($matricule) {
-                                        $set('matricule_id', $matricule->id);
-                                        $set('matricule', $matricule->mat);
-                                    } else {
-                                        $set('matricule_id', null);
-                                        $set('matricule', '');
-                                    }
-                                } else {
-                                    $set('car_id', null);
-                                    $set('car_options', []);
-                                    $set('matricule_id', null);
-                                    $set('matricule', '');
-                                }
-                            } else {
-                                $set('car_id', null);
-                                $set('car_options', []);
-                                $set('matricule_id', null);
-                                $set('matricule', '');
-                            }
-                        }),
+                        ]),
 
                     Select::make('car_id')
                         ->label('Car')
@@ -146,6 +107,22 @@ class BlResource extends Resource
                         ->createOptionForm([
                             TextInput::make('model')->required(),
                         ])
+                        ->createOptionUsing(function ($data, $set, $get) {
+                            $car = Car::create($data);
+
+                            $clientId = $get('client_id');
+                            if ($clientId) {
+                                $carsRelated = Car::where('client_id', $clientId)->pluck('model', 'id')->toArray();
+                                $otherCars = Car::whereNotIn('id', array_keys($carsRelated))->pluck('model', 'id')->toArray();
+                                $carOptions = [
+                                    'Related Cars' => $carsRelated,
+                                    'Other Cars' => $otherCars,
+                                ];
+                                $set('car_options', $carOptions);
+                            }
+
+                            return $car->id;
+                        })
                         ->live()
                         ->afterStateUpdated(function ($state, $set, $get) {
                             $clientId = $get('client_id');
@@ -170,47 +147,32 @@ class BlResource extends Resource
                         ->label('Matricule')
                         ->live()
                         ->afterStateUpdated(function ($state, callable $set, $get) {
-                            // Store the updated matricule state without saving
-                            $clientId = $get('client_id'); // Ensure client_id is available
-                            $carId = $get('car_id'); // Ensure car_id is available
+                            $clientId = $get('client_id');
+                            $carId = $get('car_id');
 
                             if (!$clientId || !$carId) {
                                 $set('matricule_id', null);
                                 return;
                             }
 
-                            $set('matricule', $state); // Store the matricule state
+                            $set('matricule', $state);
                         }),
 
+                    TextInput::make('matricule_id')
+                        ->label('Matricule ID'),
+                    ]),
+
+
+            Wizard\Step::make('Delivery')
+                ->schema([
+                    TextInput::make('km')->required()->numeric(),
+                    TextInput::make('bl_number')->required(),
+                    TextInput::make('product')->required(),
+                    TextInput::make('price')->numeric(),
+                ]),
 
 
 
-                      TextInput::make('matricule_id')
-                          ->label('Matricule ID'),
-
-
-                            ]),
-
-
-
-
-
-                    Wizard\Step::make('Delivery')
-                        ->schema([
-
-                            TextInput::make('km')
-                            ->required()
-                            ->numeric(),
-
-                            TextInput::make('bl_number')
-                            ->required(),
-
-                            TextInput::make('product')
-                            ->required(),
-
-                            TextInput::make('price')
-                            ->numeric(),
-                        ]),
                     Wizard\Step::make('Billing')
                         ->schema([
                             TextInput::make('qte')
@@ -219,39 +181,12 @@ class BlResource extends Resource
                             TextInput::make('total')
                             ->numeric(),
 
-                            TextInput::make('remark')
-                            ->maxLength(255),
+                           // TextInput::make('remark')
+                           // ->maxLength(255),
                         ]),
+
                 ])
 
-                // ->saved(function ($record, $form) {
-                //     $matricule = $form->getState()['matricule'];
-                //     $clientId = $form->getState()['client_id'];
-                //     $carId = $form->getState()['car_id'];
-
-                //     if ($matricule) {
-                //         $existingMatricule = Matricule::where('mat', $matricule)->first();
-
-                //         if ($existingMatricule) {
-                //             $existingMatricule->update([
-                //                 'client_id' => $clientId,
-                //                 'car_id' => $carId,
-                //             ]);
-                //             $form->model()->matricule_id = $existingMatricule->id;
-                //         } else {
-                //             $newMatriculeId = Matricule::max('id') + 1;
-
-                //             $newMatricule = Matricule::create([
-                //                 'mat' => $matricule,
-                //                 'client_id' => $clientId,
-                //                 'car_id' => $carId,
-                //                 'id' => $newMatriculeId,
-                //             ]);
-
-                //             $form->model()->matricule_id = $newMatricule->id;
-                //         }
-                //     }
-                // })
 
 
 

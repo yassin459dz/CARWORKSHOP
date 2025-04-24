@@ -20,6 +20,24 @@ class Matricule extends Model
     ];
 
 
+    // Method called before saving the model
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            // Ensure that `matricule_id` is set when saving
+            if (is_null($model->id) && $model->mat) {
+                // Logic to handle new matricule creation
+                // For instance, assign a new ID or perform other actions
+            }
+        });
+
+        // Optionally, use the `saved` method to handle post-save actions
+        static::saved(function ($model) {
+            // Actions to perform after saving
+        });
+    }
 
     public function client()
     {

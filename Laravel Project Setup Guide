@@ -1,0 +1,77 @@
+
+
+
+
+https://docs.google.com/document/d/e/2PACX-1vRyi8Af8gZ8IRGQA-0AIL1BC644rfWFacu6X8JRxJFmy1WujKtE-32KdnNYHQdNP-HX-BZt6TRUFw89/pub
+**Laravel Project Setup Guide**
+
+### 1. Install Required Tools  
+- install Herd https://herd.laravel.com
+- Install DBngin https://dbngin.com
+- Install VScode https://code.visualstudio.com/download
+- Install TablePlus https://tableplus.com 
+-open Git hub and downoald the project https://github.com/yassin459dz/Carbytall
+-and Php My Admin https://github.com/yassin459dz/php-my-admin
+
+### 2. Configure Herd & Local Environment
+**Downoald PHP 8.2 and Node 20**:  
+   - Open Herd, click "Add Site," and select your project folder.  
+   - The site URL will be `car.test` by default.  
+  
+**Add Site to Herd**:  
+   - Open Herd, click "Add Site," and select your project folder.  
+   - The site URL will be `car.test` by default.  
+
+**Start Services**:  
+   - In Herd, ensure **MySQL**, **PHP**, and **Nginx** services are running.  
+
+---
+
+### 3. Troubleshoot Site Visibility in Herd  
+**If the site doesn’t load**:  
+1. Go to Herd → **General** → **Herd Helper** → Enable it.  
+2. **If still not working**:  
+   - Manually add `car.test` to your hosts file:  
+     - Open `C:\Windows\System32\drivers\etc\hosts` (use Notepad as Admin).  
+     - Add this line:  
+       `127.0.0.1    car.test`  
+     - Save the file.  
+
+---
+
+### 4. Project Setup Steps  
+1. **Environment File**:  
+   - Rename `.env.example` to `.env` in your project root.  
+
+2. **Install Dependencies**:  
+   - Run `composer install` in the terminal.  
+
+3. **Generate App Key**:  
+   - Run `php artisan key:generate`.  
+
+4. **Fix NPM Issues (If Any)**:  
+   - Run `npm install`.  
+   - **If NPM fails**:  
+     - Open `.gitignore`, delete the line `/public/build`, and save.  
+     - Re-run `npm install && npm run dev`.  
+
+5. **Update Dependencies (Optional)**:  
+   - Run `composer update` only if required.  
+
+6. **Database Setup**:  
+   - Open **DBngin**, start MySQL, and create a database matching your `.env` settings.  
+   - Run `php artisan migrate` to create tables.  
+
+7. **Build Assets**:  
+   - Run `npm run build`.  
+
+---
+
+**Notes**:  
+- Always run terminal commands from your project’s root folder.  
+- For editing the hosts file, ensure you have administrator privileges.  
+- Verify database credentials in `.env` match your DBngin setup.  
+
+---
+
+This version uses clear headings, concise steps, and logical grouping. It avoids code blocks but keeps commands highlighted for easy copying.

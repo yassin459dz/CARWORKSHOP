@@ -1,21 +1,31 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+import forms from '@tailwindcss/forms';
+
 /** @type {import('tailwindcss').Config} */
+
 export default {
+
     content: [
-      './resources/views/**/*.blade.php', // Adjust these paths to match where your Blade files are located
-      './resources/js/**/*.vue', // If you use Vue.js components
-      './resources/js/**/*.jsx', // If you use React components
-      './vendor/filament/**/*.php', // Ensure Filament's files are included
-      // Add other paths as necessary
+        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+        // './storage/framework/views/*.php',
+        './resources/views/**/*.blade.php',
+        "./resources/**/*.js",
+        "./node_modules/flowbite/**/*.js",
+
     ],
     theme: {
-      extend: {
-        colors: {
-          blue: {
-            DEFAULT: '#1e40af', // Your custom blue color
-            // You can add more shades if needed
-          },
+        extend: {
+            fontFamily: {
+                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            animation: {
+                'spin-slow': 'spin 1.5s linear infinite',
+                'bounce-slow': 'bounce 2s ',
+            },
         },
-      },
     },
-    plugins: [],
-  }
+    plugins: [
+        forms,
+        require('flowbite/plugin'),
+    ],
+};
