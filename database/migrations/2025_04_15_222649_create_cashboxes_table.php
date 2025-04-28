@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->decimal('start_value', 15, 2);                 // forced (nullable = false)
             $table->decimal('end_value', 15, 2)->nullable();       // editable by boss
+            $table->decimal('manual_end_value', 15, 2)->nullable();
+            $table->boolean('manual_end_set')->default(false)->after('manual_end_value');
+            $table->decimal('decalage', 15, 2)->nullable();
+
             $table->timestamps();
         });
     }

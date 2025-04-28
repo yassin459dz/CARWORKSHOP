@@ -5,9 +5,10 @@
                 <tr>
                     <th class="px-4 py-2">Date</th>
                     <th class="px-4 py-2">Start</th>
-                    <th class="px-4 py-2 text-green-600">Inflow</th>
-                    <th class="px-4 py-2 text-red-600">Outflow</th>
+                    <th class="px-4 py-2 text-green-600">CASH IN</th>
+                    <th class="px-4 py-2 text-red-600">CASH OUT</th>
                     <th class="px-4 py-2">Balance</th>
+                    <th class="px-4 py-2">Decalage</th>
                     <th class="px-4 py-2">Action</th>
                 </tr>
             </thead>
@@ -17,12 +18,18 @@
                         <td class="px-4 py-2 font-medium">{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</td>
                         <td class="px-4 py-2">{{ number_format($data['start'], 2, ',', ' ') }} DA</td>
                         <td class="px-4 py-2 text-green-700">{{ number_format($data['entree'], 2, ',', ' ') }} DA</td>
-                        <td class="px-4 py-2 text-red-700">{{ number_format($data['sortie'], 2, ',', ' ') }} DA</td>
+                        <td class="px-4 py-2 text-red-700">{{ number_format(collect($data['mouvements'])->sum('montant'), 2, ',', ' ') }} DA</td>
                         <td class="px-4 py-2 font-semibold">{{ number_format($data['solde'], 2, ',', ' ') }} DA</td>
+                        <td class="px-4 py-2 font-semibold">{{ number_format($data['decalage'] ?? 0,2,',',' ') }} DA</td>
+
                         <td class="px-4 py-2">
                             <button wire:click="view('{{ $date }}')" class="font-medium text-blue-600 hover:underline">Details</button>
                             <button wire:click="editEndValue('{{ $date }}')" class="text-yellow-600 hover:underline">End Value</button>
                         </td>
+                        @if($data['manual_end_set'])
+                        <span class="text-green-600">User-set</span>
+                      @endif
+
                     </tr>
                 @empty
                     <tr><td colspan="6" class="px-4 py-6 text-center text-gray-500">No data available.</td></tr>
@@ -30,6 +37,8 @@
             </tbody>
         </table>
     </div>
+
+
 
     @if($selectedDate)
     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -234,6 +243,7 @@
                     <table class="w-1/2 mt-1 text-sm text-gray-700 border-y">
                         <tbody>
                             <tr class="border-l border-r ">
+
                                 <td class="px-4 py-2 font-medium text-center bg-gray-100">TOTAL</td>
                                 <td class="px-4 py-2 text-center">
                                     <span class="inline-flex items-center justify-center
@@ -247,23 +257,47 @@
                                                  dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
                                                  whitespace-nowrap">
                                                  {{ number_format(
-                                                    $dailyBalances[$selectedDate]['solde']
-                                                    - collect($mouvementsOfDay)->sum('montant'),
+                                                    $dailyBalances[$selectedDate]['solde'],
                                                     2, ',', ' '
-                                                  ) }} DA
+                                                ) }} DA
+
+
                                     </span>
                                 </td>
+
                             </tr>
                             <tr class="border-t border-l border-r">
                                 <td class="px-4 py-2 font-medium text-center bg-gray-100 text-nowrap">END VALUE</td>
                                 <td class="px-4 py-2 text-center">
-                                    <input type="number"
-                                           wire:model.defer="endValue"
-                                           placeholder="Enter the value"
-                                           class="w-full px-2 py-1 font-bold text-center text-blue-600 border border-gray-300 rounded-md center text- focus:ring focus:ring-blue-400 focus:outline-none">
+                                    <input
+                                    type="number"
+                                    inputmode="numeric"
+                                    pattern="[0-9]*"
+                                    step="1"
+                                    wire:model.defer="endValue"
+                                    placeholder="Enter the value"
+                                    onkeydown="
+                                      // allow navigation/edit keys:
+                                      if (['Backspace','Tab','ArrowLeft','ArrowRight','Delete'].includes(event.key)) {
+                                        return;
+                                      }
+                                      // block anything that is not 0–9:
+                                      if (!/^\d$/.test(event.key)) {
+                                        event.preventDefault();
+                                      }
+                                    "
+                                    oninput="
+                                      // sanitize paste / drop events, just in case:
+                                      this.value = this.value.replace(/\D/g, '');
+                                    "
+                                           class="w-full px-2 py-1 font-bold text-center text-blue-600 border border-gray-300 rounded-md focus:ring focus:ring-blue-400 focus:outline-none">
 
                                 </td>
                             </tr>
+                            <div>
+                                <label>Décalage</label>
+                                <input type="number" wire:model.defer="decalage" class="..." />
+                              </div>
                         </tbody>
                     </table>
                 </div>
@@ -287,8 +321,8 @@
                 <h3 class="mb-4 text-lg font-bold">Edit End Value – {{ \Carbon\Carbon::parse($endEditDate)->format('d/m/Y') }}</h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="block mb-1 font-semibold">End Value (DA)</label>
-                        <input type="number" step="0.01" wire:model.defer="endValue" class="w-full px-4 py-2 border rounded-md" />
+                        <label class="block mb-1 font-semibold">End ssValue (DA)</label>
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" step="0.01" wire:model.defer="endValue" class="w-full px-4 py-2 border rounded-md" />
                     </div>
                     <div class="flex justify-end">
                         <button wire:click="saveEndValue" class="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700">Save</button>

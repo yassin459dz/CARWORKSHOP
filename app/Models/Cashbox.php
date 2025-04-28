@@ -16,6 +16,8 @@ class Cashbox extends Model
         'date',
         'start_value',
         'end_value',
+        'manual_end_value',
+        'manual_end_set'    => 'boolean',   // ← new flag
 
     ];
 
