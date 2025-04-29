@@ -256,10 +256,9 @@
                                                  bg-green-50 text-green-600
                                                  dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
                                                  whitespace-nowrap">
-                                                 {{ number_format(
-                                                    $dailyBalances[$selectedDate]['solde'],
-                                                    2, ',', ' '
-                                                ) }} DA
+                                                 {{ number_format($total, 2, ',', ' ') }} DA
+
+
 
 
                                     </span>

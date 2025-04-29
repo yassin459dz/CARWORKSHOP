@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
        // register observers
        CaisseHistorique::observe(\App\Observers\CaisseHistoriqueObserver::class);
        Factures::observe(\App\Observers\FacturesObserver::class);
+       Cashbox::observe(\App\Observers\CashboxObserver::class);
 
        // Only on real web requests:
        if (! app()->runningInConsole()) {

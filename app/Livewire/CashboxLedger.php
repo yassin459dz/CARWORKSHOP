@@ -28,6 +28,7 @@ class CashboxLedger extends Component
     public $mouvementsOfDay = [];
     public $decalage = [];
 
+    public float $computedTotal = 0;
 
     public ?string $endEditDate = null;
     public ?float $endValue = null;
@@ -94,36 +95,31 @@ class CashboxLedger extends Component
 
 
 
+
     public function view(string $date): void
     {
         // Refresh balances so totals are current
         $this->loadBalances();
 
-        $this->selectedDate    = $date;
-        $this->startValue      = Cashbox::whereDate('created_at', $date)
-                                    ->value('start_value') ?? 0;
-        $this->inflow          = Factures::whereDate('created_at', $date)
-                                    ->sum('total_amount');
-        $this->outflow         = CaisseHistorique::whereDate('created_at', $date)
-                                    ->where('type', 'SORTIE')
-                                    ->sum('montant');
-        $this->total           = $this->startValue + $this->inflow - $this->outflow;
+        $this->selectedDate = $date;
+        $this->startValue = Cashbox::whereDate('created_at', $date)->value('start_value') ?? 0;
+        $this->inflow = Factures::whereDate('created_at', $date)->sum('total_amount');
+// Sum exactly the same outflows as in loadBalances():
+$this->outflow = CaisseHistorique::whereDate('created_at', $date)
+                    ->sum('montant');
+        $this->total = $this->startValue + $this->inflow - $this->outflow;
 
-        $this->facturesOfDay   = Factures::whereDate('created_at', $date)
-                                    ->with(['client', 'car'])
-                                    ->get();
-        $this->mouvementsOfDay = CaisseHistorique::whereDate('created_at', $date)
-                                    ->get();
+        $this->facturesOfDay   = Factures::whereDate('created_at', $date)->with(['client', 'car'])->get();
+        $this->mouvementsOfDay = CaisseHistorique::whereDate('created_at', $date)->get();
         $this->decalage      = $this->dailyBalances[$date]['decalage'];
 
             // ← ADD THESE TWO LINES:
-    $this->endEditDate = $date;
-    $this->endValue = Cashbox::whereDate('created_at', $date)
-    ->value('end_value')
-?? (
-$this->dailyBalances[$date]['solde']
-- collect($this->mouvementsOfDay)->sum('montant')
-);
+        $this->endEditDate = $date;
+        $this->endValue = Cashbox::whereDate('created_at', $date)->value('end_value')
+        ?? (
+        $this->dailyBalances[$date]['solde']
+        - collect($this->mouvementsOfDay)->sum('montant')
+        );
 
     }
 
@@ -136,23 +132,50 @@ $this->dailyBalances[$date]['solde']
         $this->showEndModal = true;
     }
 
+    // public function saveEndValue(): void
+    // {
+    //     $date = $this->endEditDate ?: $this->selectedDate;
+
+    //     if ($date && $this->endValue !== null) {
+    //         Cashbox::whereDate('created_at', $date)
+    //         ->update([
+    //             'end_value'        => $this->endValue,
+    //             'manual_end_value' => $this->endValue,
+    //             'manual_end_set'   => true,         // ← flip here
+    //             'decalage'         => $this->decalage,
+
+    //         ]);
+
+    //         $this->loadBalances();
+    //         session()->flash('message', 'End value updated.');
+    //     }
+    // }
+
+    // THIS FOR RECALCULATE THE NEXT DAY IF THE END VALUE UPDATED
     public function saveEndValue(): void
     {
-        $date = $this->endEditDate ?: $this->selectedDate;
+        $date = Carbon::parse($this->endEditDate ?: $this->selectedDate)
+                      ->toDateString();
 
-        if ($date && $this->endValue !== null) {
-            Cashbox::whereDate('created_at', $date)
-            ->update([
-                'end_value'        => $this->endValue,
-                'manual_end_value' => $this->endValue,
-                'manual_end_set'   => true,         // ← flip here
-                'decalage'         => $this->decalage,
+        // 1) Fetch the model instance for Day N
+        $todayBox = Cashbox::whereDate('created_at', $date)->first();
 
-            ]);
-
-            $this->loadBalances();
-            session()->flash('message', 'End value updated.');
+        if (! $todayBox) {
+            session()->flash('error', 'Cashbox not found for ' . $date);
+            return;
         }
+
+        // 2) Mutate and save—this will fire CashboxObserver::updated()
+        $todayBox->end_value        = $this->endValue;
+        $todayBox->manual_end_value = $this->endValue;
+        $todayBox->manual_end_set   = true;
+        $todayBox->decalage         = $this->decalage;
+        $todayBox->save();   // ← **must** use save() to trigger the observer
+
+        // 3) Reload balances for UI
+        $this->loadBalances();
+
+        session()->flash('message', 'End value saved and next-day start updated.');
     }
 
     public function render()
