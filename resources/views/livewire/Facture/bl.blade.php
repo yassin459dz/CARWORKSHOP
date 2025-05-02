@@ -35,7 +35,7 @@
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div
                                 @click="addToOrder(product)"
-                                class="flex flex-col p-6 transition-transform duration-100 ease-in-out bg-white border border-gray-100 shadow-md cursor-pointer dark:bg-gray-900 rounded-2xl hover:shadow-xl dark:border-gray-800 hover:-translate-y-1 group active:scale-90"
+                                class="flex flex-col p-6 transition-transform duration-100 ease-in-out bg-white border border-gray-100 shadow-md cursor-pointer select-none dark:bg-gray-900 rounded-2xl hover:shadow-xl dark:border-gray-800 hover:-translate-y-1 group active:scale-90"
                             >
                                 <!-- Product Name -->
                                 <h3 class="mb-2 text-lg font-bold text-center text-gray-800 capitalize" x-text="product.name"></h3>

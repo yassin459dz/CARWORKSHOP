@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        date_default_timezone_set('Africa/Algiers');
+
        // register observers
        CaisseHistorique::observe(\App\Observers\CaisseHistoriqueObserver::class);
        Factures::observe(\App\Observers\FacturesObserver::class);

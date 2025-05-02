@@ -31,11 +31,16 @@
                     </div> --}}
                     {{-- THE OLD DESIGN --}}
                     <div class="grid max-h-screen grid-cols-1 gap-4 p-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 no-scrollbar">
+
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div
                                 @click="$wire.currentstep === 3 ? addToOrder(product) : null"
-                                class="flex flex-col p-6 transition-transform bg-white border border-gray-100 shadow-md dark:bg-gray-900 rounded-2xl dark:border-gray-800 group"
-                                :class="$wire.currentstep === 3 ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : 'cursor-not-allowed bg-gray-100 opacity-70'"
+                                :class="[
+    'flex flex-col p-6 bg-white border shadow-md rounded-2xl group select-none',
+    $wire.currentstep === 3
+        ? 'cursor-pointer border-gray-100 hover:shadow-xl hover:-translate-y-1 active:scale-90 transition-transform duration-100 ease-in-out dark:bg-gray-900 dark:border-gray-800'
+        : 'cursor-not-allowed bg-gray-100 opacity-70 border-gray-100'
+]"
                             >
                                 <!-- Product Name -->
                                 <h3 class="mb-2 text-lg font-bold text-center text-gray-800 capitalize" x-text="product.name"></h3>

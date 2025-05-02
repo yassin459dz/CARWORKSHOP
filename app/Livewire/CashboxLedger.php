@@ -77,6 +77,7 @@ class CashboxLedger extends Component
 
                 return [
                     $date => [
+                        'created_at'       => $box->created_at,
                         'start'            => $box->start_value,
                         'entree'           => $in,
                         'sortie'           => $out,
@@ -85,6 +86,7 @@ class CashboxLedger extends Component
                         'end_value'        => $running,                // what your Blade reads now
                         'manual_end_value' => $box->manual_end_value,  // user‐typed value
                         'manual_end_set'   => $box->manual_end_set,    // true/false flag
+                        'updated_at'       => $box->updated_at,
                         'mouvements'       => $mouvements,             // for any badge logic
                         'decalage'          => $box->decalage,
                     ],
