@@ -1,6 +1,5 @@
 <?php
 
-// Updated Livewire Component: app/Http/Livewire/CashboxLedger.php
 namespace App\Livewire;
 
 use App\Models\Factures;
@@ -26,26 +25,33 @@ class CashboxLedger extends Component
 
     public $facturesOfDay = [];
     public $mouvementsOfDay = [];
-    public $decalage = [];
 
-    public float $computedTotal = 0;
-
+    // End value and décalage fields
     public ?string $endEditDate = null;
     public ?float $endValue = null;
+    public ?float $actualCashCount = null; // New field for actual cash count
+    public ?float $decalage = null;
     public bool $showEndModal = false;
+
+    // Listeners for Alpine.js value changes
+    protected $listeners = [
+        'actualCashCountUpdated' => 'updateDecalage'
+    ];
 
     public function mount()
     {
         // Ensure a cashbox record exists for today
-        $today = Carbon::today();//Determine Today’s Date
-        // if (! Cashbox::whereDate('created_at', $today)->exists()) {//Check for an Existing Cashbox Record
-        //     $yesterdayBox = Cashbox::latest('created_at')->first();
-        //     Cashbox::create([
-        //         'start_value' => $yesterdayBox?->end_value ?? 0,
-        //     ]);
-        // }
-
+        $today = Carbon::today();
         $this->loadBalances();
+
+        // DEV ONLY: auto-open modal for 26/04/2025
+        if (app()->environment('local')) {
+            // ISO date string:
+            $devDate = '2025-04-26';
+            if (isset($this->dailyBalances[$devDate])) {
+                $this->view($devDate);
+            }
+        }
     }
 
     public function loadBalances(): void
@@ -70,7 +76,7 @@ class CashboxLedger extends Component
                 // 4 Computed true closing balance
                 $computed = $box->start_value + $in - $out;
 
-                // 5 “Running” end_value = what’s in the DB or the computed fallback
+                // 5 "Running" end_value = what's in the DB or the computed fallback
                 $running = $box->end_value !== null
                          ? $box->end_value
                          : $computed;
@@ -88,15 +94,12 @@ class CashboxLedger extends Component
                         'manual_end_set'   => $box->manual_end_set,    // true/false flag
                         'updated_at'       => $box->updated_at,
                         'mouvements'       => $mouvements,             // for any badge logic
-                        'decalage'          => $box->decalage,
+                        'decalage'         => $box->decalage,
                     ],
                 ];
             })
             ->toArray();
     }
-
-
-
 
     public function view(string $date): void
     {
@@ -106,54 +109,54 @@ class CashboxLedger extends Component
         $this->selectedDate = $date;
         $this->startValue = Cashbox::whereDate('created_at', $date)->value('start_value') ?? 0;
         $this->inflow = Factures::whereDate('created_at', $date)->sum('total_amount');
-// Sum exactly the same outflows as in loadBalances():
-$this->outflow = CaisseHistorique::whereDate('created_at', $date)
-                    ->sum('montant');
+
+        // Sum exactly the same outflows as in loadBalances():
+        $this->outflow = CaisseHistorique::whereDate('created_at', $date)
+                        ->sum('montant');
         $this->total = $this->startValue + $this->inflow - $this->outflow;
 
-        $this->facturesOfDay   = Factures::whereDate('created_at', $date)->with(['client', 'car'])->get();
+        $this->facturesOfDay = Factures::whereDate('created_at', $date)->with(['client', 'car'])->get();
         $this->mouvementsOfDay = CaisseHistorique::whereDate('created_at', $date)->get();
-        $this->decalage      = $this->dailyBalances[$date]['decalage'];
 
-            // ← ADD THESE TWO LINES:
+        // End value details
         $this->endEditDate = $date;
-        $this->endValue = Cashbox::whereDate('created_at', $date)->value('end_value')
-        ?? (
-        $this->dailyBalances[$date]['solde']
-        - collect($this->mouvementsOfDay)->sum('montant')
-        );
-
+        $this->endValue = Cashbox::whereDate('created_at', $date)->value('end_value') ?? $this->total;
+        $this->actualCashCount = Cashbox::whereDate('created_at', $date)->value('manual_end_value') ?? $this->total;
+        $this->decalage = Cashbox::whereDate('created_at', $date)->value('decalage') ?? 0;
     }
 
     public function editEndValue(string $date): void
     {
         $this->endEditDate = $date;
-        $this->endValue    = Cashbox::whereDate('created_at', $date)
-                                ->value('end_value')
-                            ?? $this->dailyBalances[$date]['solde'] ?? 0;
+        $cashbox = Cashbox::whereDate('created_at', $date)->first();
+
+        $this->endValue = $cashbox->end_value ?? ($this->dailyBalances[$date]['solde'] ?? 0);
+        $this->actualCashCount = $cashbox->manual_end_value ?? $this->endValue;
+        $this->decalage = $cashbox->decalage ?? 0;
+
         $this->showEndModal = true;
     }
 
-    // public function saveEndValue(): void
-    // {
-    //     $date = $this->endEditDate ?: $this->selectedDate;
+    /**
+     * Update the décalage value when actual cash count changes
+     */
+    public function updateDecalage($value = null): void
+    {
+        if ($value !== null) {
+            $this->actualCashCount = (float) $value;
+        }
 
-    //     if ($date && $this->endValue !== null) {
-    //         Cashbox::whereDate('created_at', $date)
-    //         ->update([
-    //             'end_value'        => $this->endValue,
-    //             'manual_end_value' => $this->endValue,
-    //             'manual_end_set'   => true,         // ← flip here
-    //             'decalage'         => $this->decalage,
+        // Calculate décalage: difference between expected total and actual cash count
+        if ($this->actualCashCount !== null && $this->total !== null) {
+            $this->decalage = $this->actualCashCount - $this->total;
+        } else {
+            $this->decalage = 0;
+        }
+    }
 
-    //         ]);
-
-    //         $this->loadBalances();
-    //         session()->flash('message', 'End value updated.');
-    //     }
-    // }
-
-    // THIS FOR RECALCULATE THE NEXT DAY IF THE END VALUE UPDATED
+    /**
+     * Save both the actual cash count and the calculated décalage
+     */
     public function saveEndValue(): void
     {
         $date = Carbon::parse($this->endEditDate ?: $this->selectedDate)
@@ -168,16 +171,19 @@ $this->outflow = CaisseHistorique::whereDate('created_at', $date)
         }
 
         // 2) Mutate and save—this will fire CashboxObserver::updated()
-        $todayBox->end_value        = $this->endValue;
-        $todayBox->manual_end_value = $this->endValue;
-        $todayBox->manual_end_set   = true;
-        $todayBox->decalage         = $this->decalage;
+        $todayBox->end_value = $this->actualCashCount; // Use the actual cash count as end value
+        $todayBox->manual_end_value = $this->actualCashCount;
+        $todayBox->manual_end_set = true;
+        $todayBox->decalage = $this->decalage;
         $todayBox->save();   // ← **must** use save() to trigger the observer
 
         // 3) Reload balances for UI
         $this->loadBalances();
 
-        session()->flash('message', 'End value saved and next-day start updated.');
+        // 4) Reset modal if open
+        $this->showEndModal = false;
+
+        session()->flash('message', 'Cash count and discrepancy saved successfully.');
     }
 
     public function render()
