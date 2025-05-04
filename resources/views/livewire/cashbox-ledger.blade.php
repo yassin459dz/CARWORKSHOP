@@ -257,10 +257,10 @@
 <!-- CASH COUNT & BALANCING (pure Alpine.js) -->
 <div
     x-data="{
-        total:  {{ $total }},                         // still read‐only
-        actual: @entangle('actualCashCount').defer,   // ← NO default here!
-        get decalage() { return this.actual - this.total },
-        percent()     { return Math.min(Math.abs(this.decalage / this.total * 100), 100) }
+    total: @entangle('total'),
+    actual: @entangle('actualCashCount'),
+    get decalage() { return this.actual - this.total },
+    percent() { return Math.min(Math.abs(this.decalage / this.total * 100), 100) }
     }"
     class="mb-4 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm"
 >
@@ -300,17 +300,13 @@
                         <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
                     </div>
                     <input
-                    id="actual-cash-count"
-                    type="number"
-                    step="0.01"
-                    x-model.number="actual"
-                    x-init="actual = {{ $actualCashCount ?? 0 }}"
-                    @input.debounce.300ms="$wire.updateDecalage(actual)"
-                    class="block w-full py-2 pl-10 pr-12 mb-2 text-lg font-medium border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
-                  />
-
-
-
+                        id="actual-cash-count"
+                        class="block w-full py-2 pl-10 pr-12 text-lg font-medium border-gray-300 rounded-md bg-gray-50"
+                        type="number"
+                        step="0.01"
+                        x-model.number="actual"
+                        @input.debounce.300ms="$wire.updateDecalage(actual)"
+                        />
                 </div>
                 <p class="mt-1 text-xs text-gray-500">Enter the exact amount you count in the cash box</p>
             </div>
