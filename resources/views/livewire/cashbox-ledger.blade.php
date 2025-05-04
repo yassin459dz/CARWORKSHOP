@@ -274,18 +274,23 @@
             <div>
                 <label class="block mb-1 text-sm font-medium text-gray-700">Expected Balance</label>
                 <div class="relative rounded-md shadow-sm">
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
-                        <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
-                    </div>
-                    <input
-                        type="text"
-                        readonly
-                        :value="total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })"
-                        class="block w-full py-2 pl-10 pr-12 text-lg font-medium border-gray-300 rounded-md cursor-not-allowed bg-gray-50"
-                    >
+                  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <span class="text-gray-500">
+                      <!-- You can use heroicon or any other icon from Laravel -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
+                    <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
+                  </div>
+                  <div x-text="total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })"
+                    class="block w-full py-2 pl-10 pr-12 text-lg font-medium text-gray-700 border border-gray-300 rounded-md bg-gray-50">
+                  </div>
                 </div>
                 <p class="mt-1 text-xs text-gray-500">Calculated from start value, cash in, and cash out</p>
-            </div>
+              </div>
 
             <!-- Actual Cash Count (Editable) -->
             <div>
@@ -310,38 +315,54 @@
                 </div>
                 <p class="mt-1 text-xs text-gray-500">Enter the exact amount you count in the cash box</p>
             </div>
+<!-- 1) Put this once, e.g. at the top of your Blade file -->
 
             <!-- Calculated Discrepancy (Décalage) -->
-            <div class="p-4 mt-2 border border-gray-200 rounded-lg md:col-span-2 bg-gray-50">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h5 class="text-lg font-semibold text-gray-800">Discrepancy (Décalage)</h5>
-                        <p class="text-sm text-gray-500">Difference between expected and actual cash</p>
-                    </div>
-                    <div>
-                        <span
-                            class="inline-flex items-center justify-center px-3 py-2 text-xl font-bold rounded-md"
-                            :class="decalage < 0
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-green-100 text-green-800'"
-                            x-text="(decalage >= 0 ? '+' : '')
-                                     + decalage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                                     + ' DA'"
-                        ></span>
-                    </div>
-                </div>
+<!-- …later, in your template… -->
+<div class="p-4 mt-2 border border-gray-200 rounded-lg md:col-span-2 bg-gray-50">
+    <div x-data="cashData()">
+      <div class="flex items-center justify-between">
+        <div>
+          <h5 class="text-lg font-semibold text-gray-800">Discrepancy (Décalage)</h5>
+          <p class="text-sm text-gray-500">Difference between expected and actual cash</p>
+        </div>
+        <div>
+          <span
+            class="inline-flex items-center justify-center px-3 py-2 text-xl font-bold rounded-md"
+            :class="decalage < 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
+            x-text="(decalage >= 0 ? '+' : '')
+                    + decalage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    + ' DA'"
+          ></span>
+        </div>
+      </div>
 
-                <!-- Visual indicator for the direction of the difference -->
-                <div class="flex items-center mt-3">
-                    <div class="w-full h-2 bg-gray-200 rounded-full">
-                        <div
-                            class="h-2 rounded-full"
-                            :class="decalage < 0 ? 'bg-red-500' : 'bg-green-500'"
-                            :style="{ width: percent() + '%' }"
-                        ></div>
-                    </div>
-                </div>
-            </div>
+      <!-- Bar -->
+      <div class="flex items-center mt-3">
+        <div class="w-full h-2 bg-gray-200 rounded-full">
+          <div
+            class="h-2 rounded-full"
+            :class="decalage < 0 ? 'bg-red-500' : 'bg-green-500'"
+            :style="{ width: widthPercent() + '%' }"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Displayed percent with sign -->
+      <p
+        class="mt-2 text-sm font-medium text-gray-700"
+        x-text="
+          // Option A: show the true percent (can exceed 100 or be negative):
+          (rawPercent() >= 0 ? '+' : '')
+            + rawPercent().toFixed(2) + '%'
+
+          // Option B: show a clamped percent (never above 100), but still add +/–:
+          // (decalage >= 0 ? '+' : '-')
+          //   + widthPercent().toFixed(2) + '%'
+        "
+      ></p>
+    </div>
+  </div>
         </div>
     </div>
 
@@ -377,3 +398,27 @@
         </div>
     @endif
 </div>
+<script>
+    function cashData() {
+      return {
+        // entangle these with your Livewire props!
+        total: @entangle('total'),
+        actual: @entangle('actualCashCount'),
+
+        // difference
+        get decalage() {
+          return this.actual - this.total;
+        },
+
+        // raw percentage, can go negative or exceed 100
+        rawPercent() {
+          return (this.decalage / this.total) * 100;
+        },
+
+        // clamped 0–100 for bar width
+        widthPercent() {
+          return Math.min(Math.abs(this.rawPercent()), 100);
+        }
+      };
+    }
+  </script>
