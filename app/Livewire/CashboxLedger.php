@@ -32,6 +32,7 @@ class CashboxLedger extends Component
     public ?float $actualCashCount = null; // New field for actual cash count
     public ?float $decalage = null;
     public bool $showEndModal = false;
+    
 
     // Listeners for Alpine.js value changes
     protected $listeners = [
@@ -123,6 +124,7 @@ class CashboxLedger extends Component
         $this->endValue = Cashbox::whereDate('created_at', $date)->value('end_value') ?? $this->total;
         $this->actualCashCount = Cashbox::whereDate('created_at', $date)->value('manual_end_value') ?? $this->total;
         $this->decalage = Cashbox::whereDate('created_at', $date)->value('decalage') ?? 0;
+
     }
 
     public function editEndValue(string $date): void

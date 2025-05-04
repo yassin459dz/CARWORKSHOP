@@ -300,13 +300,17 @@
                         <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
                     </div>
                     <input
-                        id="actual-cash-count"
-                        type="number"
-                        step="0.01"
-                        x-model.number="actual"
-                        @input="$wire.updateDecalage(actual)"
-                        class="block w-full py-2 pl-10 pr-12 text-lg font-medium border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
-                    >
+                    id="actual-cash-count"
+                    type="number"
+                    step="0.01"
+                    x-model.number="actual"
+                    x-init="actual = {{ $actualCashCount ?? 0 }}"
+                    @input.debounce.300ms="$wire.updateDecalage(actual)"
+                    class="block w-full py-2 pl-10 pr-12 mb-2 text-lg font-medium border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
+                  />
+
+
+
                 </div>
                 <p class="mt-1 text-xs text-gray-500">Enter the exact amount you count in the cash box</p>
             </div>
