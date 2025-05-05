@@ -46,13 +46,13 @@ class CashboxLedger extends Component
         $this->loadBalances();
 
         // DEV ONLY: auto-open modal for 26/04/2025
-        if (app()->environment('local')) {
-            // ISO date string:
-            $devDate = '2025-04-26';
-            if (isset($this->dailyBalances[$devDate])) {
-                $this->view($devDate);
-            }
-        }
+        // if (app()->environment('local')) {
+        //     // ISO date string:
+        //     $devDate = '2025-04-26';
+        //     if (isset($this->dailyBalances[$devDate])) {
+        //         $this->view($devDate);
+        //     }
+        // }
     }
 
     public function loadBalances(): void
@@ -234,7 +234,7 @@ class CashboxLedger extends Component
             $this->view($next);
         }
     }
-    
+
     public function render()
     {
         return view('livewire.cashbox-ledger', [
