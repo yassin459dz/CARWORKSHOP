@@ -33,27 +33,59 @@ class CashboxLedger extends Component
     public ?float $decalage = null;
     public bool $showEndModal = false;
     public ?float $nextStartValue = null;
-
+    public bool   $unlocked        = false;
+    public string $enteredPassword = '';
 
     // Listeners for Alpine.js value changes
     protected $listeners = [
         'actualCashCountUpdated' => 'updateDecalage'
+
     ];
+
+    protected array $rules = [
+        'enteredPassword' => 'required|string'
+      ];
+
+      public function unlock()
+      {
+        $this->validate();
+
+        if (strcasecmp($this->enteredPassword, config('cashbox.password', '')) === 0) {
+            session()->put('cashbox_unlocked', true);
+            $this->unlocked = true;
+            $this->loadBalances();
+        } else {
+            $this->addError('enteredPassword', 'Incorrect password.');
+        }
+      }
 
     public function mount()
     {
+                // check session in case they already unlocked
+                $this->unlocked = session()->get('cashbox_unlocked', false);
+
+                if ($this->unlocked) {
+                    $this->loadBalances();
+                }
         // Ensure a cashbox record exists for today
         $today = Carbon::today();
         $this->loadBalances();
 
         // DEV ONLY: auto-open modal for 26/04/2025
-        if (app()->environment('local')) {
-            // ISO date string:
-            $devDate = '2025-04-26';
-            if (isset($this->dailyBalances[$devDate])) {
-                $this->view($devDate);
-            }
-        }
+        // if (app()->environment('local')) {
+        //     // ISO date string:
+        //     $devDate = '2025-04-26';
+        //     if (isset($this->dailyBalances[$devDate])) {
+        //         $this->view($devDate);
+        //     }
+        // }
+    }
+    public function refreshSession()
+    {
+        session()->forget('cashbox_unlocked');
+        $this->unlocked = false;
+        $this->enteredPassword = '';
+        $this->dailyBalances = [];
     }
 
     public function loadBalances(): void

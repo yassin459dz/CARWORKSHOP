@@ -22,6 +22,7 @@ use App\Livewire\Caisse;
 use App\Livewire\Deponse;
 use App\Livewire\CashboxLedger;
 use App\Livewire\Editdeponse;
+use Illuminate\Http\Request;
 
 Route::view('/', 'welcome');
 
@@ -105,6 +106,7 @@ Route::view('profile', 'profile')
     Route::get('/cashbox', CashboxLedger::class)
     ->middleware(['auth', 'verified'])
     ->name('cashbox');
+
 
 require __DIR__.'/auth.php';
 
