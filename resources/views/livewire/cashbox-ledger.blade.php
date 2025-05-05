@@ -298,122 +298,134 @@
 <!-- CASH COUNT & BALANCING (pure Alpine.js) -->
 <div
     x-data="{
-    total: @entangle('total'),
-    actual: @entangle('actualCashCount'),
-    get decalage() { return this.actual - this.total },
-    percent() { return Math.min(Math.abs(this.decalage / this.total * 100), 100) }
+        total: @entangle('total'),
+        actual: @entangle('actualCashCount'),
+        get decalage() { return this.actual - this.total },
+        percent() { return Math.min(Math.abs(this.decalage / this.total * 100), 100) }
     }"
-    class="mb-4 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-sm"
+    class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md"
 >
-    <div class="px-4 py-3 bg-gray-100 border-b border-gray-200">
-        <h4 class="font-medium text-gray-800">CASH COUNT & BALANCING</h4>
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
+        <h3 class="text-lg font-semibold text-gray-800">CASH COUNT & BALANCING</h3>
     </div>
-    <div class="p-4">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 
+    <div class="p-5">
+        <!-- Main Input Section -->
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- Expected Balance (Read-only) -->
             <div>
-                <label class="block mb-1 text-sm font-medium text-gray-700">Expected Balance</label>
-                <div class="relative rounded-md shadow-sm">
-                  <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <span class="text-gray-500">
-                      <!-- You can use heroicon or any other icon from Laravel -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </span>
-                  </div>
-                  <div class="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
-                    <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
-                  </div>
-                  <div x-text="total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })"
-                    class="block w-full py-2 pl-10 pr-12 text-lg font-medium text-gray-700 border border-gray-300 rounded-md bg-gray-50">
-                  </div>
-                </div>
-                <p class="mt-1 text-xs text-gray-500">Calculated from start value, cash in, and cash out</p>
-              </div>
+                <label class="block mb-2 text-sm font-medium text-gray-700">Expected Balance</label>
+                <span
+                class="inline-flex items-center justify-center px-4 py-3 text-2xl font-bold text-blue-800 transition-colors bg-blue-100 rounded-md"
+                x-text="total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        + ' DA'">
+                </span>
+                <p class="mt-1.5 text-xs text-gray-500">Calculated from start value, cash in, and cash out</p>
+            </div>
 
             <!-- Actual Cash Count (Editable) -->
             <div>
-                <label for="actual-cash-count" class="block mb-1 text-sm font-medium text-gray-700">
+                <label for="actual-cash-count" class="block mb-2 text-sm font-medium text-gray-700">
                     Actual Cash Count
                 </label>
                 <div class="relative rounded-md shadow-sm">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <!-- SVG icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pr-3 pointer-events-none">
-                        <span class="px-2 text-xl font-semibold text-blue-800 bg-blue-100 rounded-md">DA</span>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                        <span class="px-2 py-1 text-2xl font-bold text-blue-800 bg-blue-100 rounded-md">DA</span>
                     </div>
                     <input
                         id="actual-cash-count"
-                        class="block w-full py-2 pl-10 pr-12 text-lg font-medium border-gray-300 rounded-md bg-gray-50"
+                        class="block w-full py-3 pl-10 pr-16 text-2xl font-semibold transition-colors bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                         type="number"
-                        step="0.01"
+                        step="100"
                         x-model.number="actual"
                         @input.debounce.300ms="$wire.updateDecalage(actual)"
-                        />
+                    />
                 </div>
-                <p class="mt-1 text-xs text-gray-500">Enter the exact amount you count in the cash box</p>
+                <p class="mt-1.5 text-xs text-gray-500">Enter the exact amount you count in the cash box</p>
             </div>
-<!-- 1) Put this once, e.g. at the top of your Blade file -->
-
-            <!-- Calculated Discrepancy (Décalage) -->
-<!-- …later, in your template… -->
-<div class="p-4 mt-2 border border-gray-200 rounded-lg md:col-span-2 bg-gray-50">
-    <div x-data="cashData()">
-      <div class="flex items-center justify-between">
-        <div>
-          <h5 class="text-lg font-semibold text-gray-800">Discrepancy (Décalage)</h5>
-          <p class="text-sm text-gray-500">Difference between expected and actual cash</p>
         </div>
-        <div>
-          <span
-            class="inline-flex items-center justify-center px-3 py-2 text-xl font-bold rounded-md"
-            :class="decalage < 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
-            x-text="(decalage >= 0 ? '+' : '')
-                    + decalage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                    + ' DA'"
-          ></span>
+
+        <!-- Discrepancy Section -->
+        <div class="p-4 mt-6 border border-gray-200 rounded-lg md:col-span-2 bg-gray-50">
+            <div>
+                <div class="flex items-center justify-between">
+                    <div class="max-w-xs">
+                        <h5 class="text-base font-semibold text-gray-800">Discrepancy (Décalage)</h5>
+                        <p class="text-xs text-gray-500">Difference between expected and actual cash</p>
+                    </div>
+                    <div>
+                        <span
+                            class="inline-flex items-center justify-center px-4 py-2 text-xl font-bold transition-colors rounded-md"
+                            :class="decalage < 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
+                            x-text="(decalage >= 0 ? '+' : '')
+                                    + decalage.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                    + ' DA'"
+                        ></span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="flex items-center mt-4">
+                    <div class="w-full h-3 overflow-hidden bg-gray-200 rounded-full">
+                        <div
+                            class="h-3 transition-all duration-300 ease-in-out rounded-full"
+                            :class="decalage < 0 ? 'bg-red-500' : 'bg-green-500'"
+                            :style="{ width: percent() + '%' }"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Percentage Display -->
+                <p
+                    class="mt-2 text-sm font-medium"
+                    :class="decalage < 0 ? 'text-red-600' : 'text-green-600'"
+                    x-text="(decalage >= 0 ? '+' : '') +
+                        (decalage / total * 100).toFixed(2) + '%'"
+                ></p>
+            </div>
         </div>
-      </div>
 
-      <!-- Bar -->
-      <div class="flex items-center mt-3">
-        <div class="w-full h-2 bg-gray-200 rounded-full">
-          <div
-            class="h-2 rounded-full"
-            :class="decalage < 0 ? 'bg-red-500' : 'bg-green-500'"
-            :style="{ width: widthPercent() + '%' }"
-          ></div>
+        <!-- Leftover for Next Day -->
+        <div class="mt-6">
+            <label for="next-day-balance" class="block mb-2 text-sm font-medium text-gray-700">
+                START NEXT DAY
+            </label>
+            <div class="relative rounded-md shadow-sm">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                    <span class="px-2 py-1 text-2xl font-bold text-blue-800 bg-blue-100 rounded-md">DA</span>
+                </div>
+                <input
+                    id="next-day-balance"
+                    class="block w-full py-3 pl-10 pr-16 text-2xl font-medium transition-colors bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    type="number"
+                    step="100"
+                    wire:model.defer="nextStartValue"
+                />
+            </div>
+            <p class="mt-1.5 text-xs text-gray-500">This becomes tomorrow's opening balance</p>
         </div>
-      </div>
-
-      <!-- Displayed percent with sign -->
-      <p
-        class="mt-2 text-sm font-medium text-gray-700"
-        x-text="
-          // Option A: show the true percent (can exceed 100 or be negative):
-          (rawPercent() >= 0 ? '+' : '')
-            + rawPercent().toFixed(2) + '%'
-
-          // Option B: show a clamped percent (never above 100), but still add +/–:
-          // (decalage >= 0 ? '+' : '-')
-          //   + widthPercent().toFixed(2) + '%'
-        "
-      ></p>
     </div>
-  </div>
-        </div>
-    </div>
 
-    <!-- Footer button still using Livewire save -->
+    <!-- Footer with Save Button -->
     <div class="flex justify-end px-6 py-4 border-t border-gray-200 bg-gray-50">
         <button
             @click.prevent="$wire.saveEndValue()"
-            class="flex items-center justify-center gap-2 px-6 py-3 font-medium text-white transition bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-95"
+            class="flex items-center justify-center gap-2 px-6 py-3 font-medium text-white transition-all duration-200 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-95 group"
         >
-            <!-- SVG check icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white transition duration-200 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
             Save Changes
         </button>
     </div>
