@@ -21,7 +21,7 @@ use App\Livewire\Product;
 use App\Livewire\Caisse;
 use App\Livewire\Deponse;
 use App\Livewire\CashboxLedger;
-
+use App\Livewire\Editdeponse;
 
 Route::view('/', 'welcome');
 
@@ -97,6 +97,10 @@ Route::view('profile', 'profile')
     Route::get('/deponse', Deponse::class)
     ->middleware(['auth', 'verified'])
     ->name('deponse');
+
+    Route::get('/editdeponse/{id}', EditDeponse::class)
+    ->middleware(['auth', 'verified'])
+    ->name('editdeponse');
 
     Route::get('/cashbox', CashboxLedger::class)
     ->middleware(['auth', 'verified'])

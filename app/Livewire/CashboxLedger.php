@@ -140,7 +140,7 @@ class CashboxLedger extends Component
     }
 
 
-    
+
 
     public function editEndValue(string $date): void
     {
@@ -203,6 +203,38 @@ class CashboxLedger extends Component
         session()->flash('message', 'Cash count and discrepancy saved successfully.');
     }
 
+    public function previousDate(): ?string
+    {
+        $dates = array_keys($this->dailyBalances);
+        sort($dates); // oldest → newest
+        $currentIndex = array_search($this->selectedDate, $dates, true);
+        return $currentIndex > 0 ? $dates[$currentIndex - 1] : null;
+    }
+
+    public function nextDate(): ?string
+    {
+        $dates = array_keys($this->dailyBalances);
+        sort($dates); // oldest → newest
+        $currentIndex = array_search($this->selectedDate, $dates, true);
+        return $currentIndex < count($dates) - 1
+            ? $dates[$currentIndex + 1]
+            : null;
+    }
+
+    public function goPrevious(): void
+    {
+        if ($prev = $this->previousDate()) {
+            $this->view($prev);
+        }
+    }
+
+    public function goNext(): void
+    {
+        if ($next = $this->nextDate()) {
+            $this->view($next);
+        }
+    }
+    
     public function render()
     {
         return view('livewire.cashbox-ledger', [

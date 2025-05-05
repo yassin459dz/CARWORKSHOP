@@ -1,58 +1,40 @@
-<div>
-    <!-- Type Selection -->
-    <label class="block mb-2 text-sm font-medium text-gray-900">Type</label>
-    <ul class="grid w-full gap-6 mb-4 md:grid-cols-2">
-        <li>
-            <input type="radio" id="entree" name="type" value="ENTRÉE" wire:model="type" class="hidden peer" required />
-            <label for="entree"
-                class="items-center w-full p-5 text-blue-600 transition-transform duration-100 ease-in-out bg-blue-100 rounded-md cursor-pointer peer-checked:text-white peer-checked:bg-blue-600 hover:bg-blue-600 hover:text-white active:scale-95">
-                <div class="block">
-                    <div class="w-full text-xl font-semibold">ENTRÉE</div>
-                </div>
-            </label>
-        </li>
-        <li>
-            <input type="radio" id="sortie" name="type" value="SORTIE" wire:model="type" class="hidden peer" />
-            <label for="sortie"
-                class="items-center w-full p-5 text-red-600 transition-transform duration-100 ease-in-out bg-red-100 rounded-md cursor-pointer peer-checked:text-white peer-checked:bg-red-600 hover:bg-red-600 hover:text-white active:scale-95">
-                <div class="block">
-                    <div class="w-full text-xl font-semibold">SORTIE</div>
-                </div>
-            </label>
-        </li>
-    </ul>
+<div class="max-w-md p-6 mx-auto mt-8 bg-white shadow-lg rounded-2xl">
+    <h2 class="mb-4 text-2xl font-semibold text-gray-800">CASH OUT</h2>
 
-    <!-- Montant -->
-    <label for="montant" class="block mb-2 text-sm font-medium text-gray-900">Montant</label>
-    <input wire:model="montant" type="number" name="montant"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-        required />
-    @error('montant')
-    <div class="relative px-4 py-2 mt-2 text-sm text-red-700 bg-red-100 border border-red-400 rounded">
-        {{ $message }}
+    {{-- Montant --}}
+    <div class="mb-4">
+        <label for="montant" class="block mb-1 text-sm font-medium text-gray-700">Montant </label>
+        <input wire:model.debounce="montant" id="montant" type="number" min="0" step="0.01"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Entrez le montant">
+        @error('montant')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
     </div>
-    @enderror
 
-    <!-- Description -->
-    <label for="desc" class="block mt-4 mb-2 text-sm font-medium text-gray-900">Description</label>
-    <input wire:model="desc" type="text" name="description"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-        required />
-    @error('description')
-        <span class="text-sm text-danger"> {{$message}} </span>
-    @enderror
+    {{-- Description --}}
+    <div class="mb-6">
+        <label for="desc" class="block mb-1 text-sm font-medium text-gray-700">Description</label>
+        <textarea wire:model.debounce="desc" id="desc" rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ajoutez une description (facultatif)"></textarea>
+        @error('description')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+    </div>
 
-    <!-- Save Button -->
-    <button wire:click="save" type="button"
-        class="w-full mt-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
-        Save
+    {{-- Save Button --}}
+    <button wire:click="save" wire:loading.attr="disabled"
+        class="flex items-center justify-center w-full px-5 py-2 font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50">
+        <span wire:loading.remove>Enregistrer</span>
     </button>
-</div>
 
-<script>
-    document.addEventListener('livewire:initialized', function() {
-        Livewire.on('showAlert', (data) => {
-            alert(data.message);
-        });
-    });
-</script>
+    {{-- Success Alert --}}
+    <div x-data="{ open: false, message: '' }"
+         x-show="open"
+         x-transition
+         x-init="Livewire.on('showAlert', data => { message = data.message; open = true; setTimeout(() => open = false, 3000) })"
+         class="p-3 mt-4 text-sm text-green-800 bg-green-100 border border-green-200 rounded-lg">
+        <span x-text="message"></span>
+    </div>
+</div>

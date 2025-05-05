@@ -71,20 +71,54 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-60 backdrop-blur-sm">
         <div class="w-11/12 md:w-4/5 lg:w-3/4 max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
             <!-- Header - Always visible -->
-            <div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h3 class="flex items-center text-xl font-semibold text-gray-800 gap-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Details of: <span class="text-blue-600">{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</span></span>
-                </h3>
+<!-- Header - Always visible -->
+<div class="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <!-- Left side with navigation and date display -->
+    <div class="flex items-center space-x-2">
+        <!-- Previous button -->
+        <button
+            wire:click="goPrevious"
+            @if(! $this->previousDate()) disabled @endif
+            class="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50"
+            title="Previous day"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
 
-                <button wire:click="$set('selectedDate', null)" class="p-2 text-gray-400 transition-all duration-200 bg-transparent rounded-full hover:text-red-500 hover:bg-gray-100">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
+        <!-- Date display -->
+        <h3 class="flex items-center text-xl font-semibold text-gray-800 gap-x-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+            </svg>
+            <span>Details of: <span class="text-blue-600">{{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}</span></span>
+        </h3>
+
+        <!-- Next button -->
+        <button
+            wire:click="goNext"
+            @if(! $this->nextDate()) disabled @endif
+            class="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50"
+            title="Next day"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Right side with close button -->
+    <button wire:click="$set('selectedDate', null)" class="p-2 text-gray-400 transition-all duration-200 bg-transparent rounded-full hover:text-red-500 hover:bg-gray-100">
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+</div>
 
             <!-- Scrollable Content Area -->
             <div class="flex-1 px-6 py-4 overflow-y-auto">
@@ -125,8 +159,12 @@
                                     @forelse($facturesOfDay as $facture)
                                         <tr class="border-t border-gray-200 hover:bg-gray-50">
                                             <td class="px-4 py-3 text-center text-gray-800">
-                                                <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem]  whitespace-nowrap cursor-pointer">
-                                                #{{ $facture->id }}
+                                                <span >
+
+                                                <a wire:navigate href="{{ route('editfacture', ['edit' => $facture->id]) }}"
+                                                    class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem]  whitespace-nowrap cursor-pointer">
+                                                    #{{ $facture->id }}
+                                                 </a>
                                                 </span>
                                             </td>
                                             <td class="px-4 py-3 text-center">
@@ -189,9 +227,12 @@
                                     @forelse($mouvementsOfDay as $mvt)
                                         <tr class="border-t border-gray-200 hover:bg-gray-50">
                                             <td class="px-4 py-3 text-center text-gray-800">
-                                                <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem]  whitespace-nowrap cursor-pointer">
-                                                    #{{ $mvt->id }}</td>
-                                                </span>
+                                                <a wire:navigate href="{{ route('editdeponse', ['id' => $mvt->id]) }}"
+                                                    class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem] whitespace-nowrap cursor-pointer">
+                                                    #{{ $mvt->id }}
+                                                </a>
+                                            </td>
+
                                             <td class="px-4 py-3 text-center text-gray-800">
                                                 <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-yellow-600/10 px-2 py-1 min-w-[1.5rem] bg-yellow-50 text-yellow-600 whitespace-nowrap">
                                                     {{ $mvt->description }}

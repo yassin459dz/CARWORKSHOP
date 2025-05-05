@@ -18,6 +18,7 @@ return new class extends Migration
                   ->constrained('cashboxes')
                   ->onDelete('set null');
                   $table->decimal('montant', 15, 2)->default(0);
+                  $table->string('description')->nullable();
                   $table->string('type')->nullable(); // e.g., 'SORTIE' or 'ENTREE'
                   $table->timestamps(); // created_at = date of movement
 
