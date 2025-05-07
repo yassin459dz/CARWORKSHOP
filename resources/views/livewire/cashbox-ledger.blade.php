@@ -1,7 +1,7 @@
 <div>
     <div>
         @if(! $unlocked)
-        <form
+        <form 
           autocomplete="off"
           wire:submit.prevent="unlock"
           class="max-w-sm p-6 mx-auto mt-20 bg-white rounded-lg shadow"
@@ -10,7 +10,7 @@
 
           <!-- Dummy hidden fields to trip Chrome up -->
           <input type="text" name="fakeusernameremembered" style="display:none">
-          <input type="password" name="fakepasswordremembered" style="display:none">
+          <input type="password" name="fakepasswordremembered" style="display:none" >
 
           <!-- Real password field -->
           <input
@@ -18,10 +18,13 @@
             name="cashbox-pass"
             type="password"
             wire:model.defer="enteredPassword"
-            autocomplete="off"
+            onfocus="this.removeAttribute('readonly');"
+            autocomplete="one-time-code"
             class="w-full px-3 py-2 mb-2 border rounded"
             placeholder="Password"
+                          autocomplete="false"
           />
+
 
           @error('enteredPassword')
             <p class="text-sm text-red-600">{{ $message }}</p>
