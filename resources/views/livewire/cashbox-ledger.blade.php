@@ -1,7 +1,7 @@
 <div>
     <div>
         @if(! $unlocked)
-        <form 
+        <form
           autocomplete="off"
           wire:submit.prevent="unlock"
           class="max-w-sm p-6 mx-auto mt-20 bg-white rounded-lg shadow"
@@ -279,7 +279,7 @@
                                                 </td>
 
                                                 <td class="px-4 py-3 text-center text-gray-800">
-                                                    <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-yellow-600/10 px-2 py-1 min-w-[1.5rem] bg-yellow-50 text-yellow-600 whitespace-nowrap">
+                                                    <span class=" inline-block max-w-[20ch] truncate items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-yellow-600/10 px-2 py-1 min-w-[1.5rem] bg-yellow-50 text-yellow-600 whitespace-nowrap">
                                                         {{ $mvt->description }}
                                                     </span>
                                                 </td>

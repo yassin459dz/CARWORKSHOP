@@ -75,7 +75,7 @@
                                 <th scope="col" class="px-6 py-4 text-center">Car Model</th>
                                 <th scope="col" class="px-6 py-4 text-center">Matricule</th>
                                 <th scope="col" class="px-6 py-4 text-center">KM</th>
-                                <th scope="col" class="px-6 py-4 text-center">Remark</th>
+                                <th scope="col" class="py-4 text-center ">Remark</th>
                                 <th scope="col" class="px-6 py-4 text-center">Status</th>
                                 <th scope="col" class="px-6 py-4 text-center">Total</th>
                                 <th scope="col" class="px-6 py-4 text-center">Action</th>
@@ -85,21 +85,22 @@
                             @foreach ($factures as $facture)
                             <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800">
                                 <td class="px-3 py-4 font-medium text-center dark:text-white">
-                                    <span class="inline-flex items-center justify-center text-sm font-medium whitespace-nowrap">#{{ $facture->id }}</span>
+                                    <a wire:navigate href="{{ route('viewfacture', ['id' => $facture->id]) }}">#{{ $facture->id }}</a>
                                 </td>
                                 <td class="px-4 py-4 text-center">
-                                <span class="
-    inline-flex items-center justify-center
-    gap-x-1
-    rounded-md
-    text-sm font-medium
-    ring-1 ring-inset ring-gray-500
-    px-2 py-1
-    min-w-[1.5rem]
-    bg-black-50 text-black-600
-    dark:bg-black-400/10 dark:text-black-400 dark:ring-black-400/30
-    whitespace-nowrap
-  ">{{ $facture->created_at->format('d-M-Y') }}</span></td>
+  <a class="
+  inline-flex items-center justify-center
+  gap-x-1
+  rounded-md
+  text-sm font-medium
+  ring-1 ring-inset ring-gray-500
+  px-2 py-1
+  min-w-[1.5rem]
+  bg-black-50 text-black-600
+  dark:bg-black-400/10 dark:text-black-400 dark:ring-black-400/30
+  whitespace-nowrap
+" wire:navigate href="{{ route('viewfacture', ['id' => $facture->id]) }}">{{ $facture->created_at->format('d-M-Y') }}</a>
+</td>
                                 <td class="px-6 py-4 font-medium text-center text-gray-900 dark:text-white">
                                     <span class="
                                         inline-flex items-center justify-center
@@ -157,8 +158,8 @@
     whitespace-nowrap">{{ $facture->km }} </span>
 
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center justify-center overflow-hidden text-sm font-medium whitespace-nowrap ">{{ $facture->remark }}</span></td>
+                                <td class="py-4 text-center ">
+                                    <span class="inline-block max-w-[15ch] truncate text-sm font-medium ">{{ $facture->remark }}</span></td>
                                 <td class="px-2 py-4 text-center">
                                     <span class="
     inline-flex items-center justify-center

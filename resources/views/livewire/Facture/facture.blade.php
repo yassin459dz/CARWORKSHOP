@@ -288,7 +288,103 @@
                     </div>
                     @endif
 
-                    <!-- Order Items (Livewire Step 3) -->
+                    <!-- Payment Checkbox (Step 3 Only) -->
+@if($currentstep === 3)
+    <div class="flex items-center mb-4 mt-4 p-3 bg-gray-50 rounded-lg">
+        <input 
+            type="checkbox" 
+            id="open-payment-modal" 
+            x-on:change="paymentModalOpen = !paymentModalOpen; if(paymentModalOpen) { clientPaid = calculateTotal(); calculateRemaining(); }"
+            class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+        >
+        <label for="open-payment-modal" class="ml-2 text-sm font-medium text-gray-900">
+            Client will make partial/full payment now
+        </label>
+    </div>
+@endif
+<!-- Payment Modal -->
+<div 
+    x-show="paymentModalOpen"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 transform scale-90"
+    x-transition:enter-end="opacity-100 transform scale-100"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100 transform scale-100"
+    x-transition:leave-end="opacity-0 transform scale-90"
+    class="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-gray-800 bg-opacity-60"
+    x-cloak
+>
+    <div class="relative w-full max-w-md px-4 py-8 mx-auto bg-white rounded-lg shadow-lg">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">
+                Process Payment
+            </h3>
+            <button 
+                @click="paymentModalOpen = false"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <div class="space-y-6">
+            <div class="p-4 mb-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">Facture Total</span> <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
+                </p>
+            </div>
+            <div class="mb-4">
+                <label for="clientPaid" class="block mb-2 text-sm font-medium text-gray-900">
+                    Payment Amount (DA)
+                </label>
+                <input 
+                    type="number" 
+                    step="0.01" 
+                    min="0" 
+                    :max="calculateTotal()"
+                    x-model.number="clientPaid" 
+                    @input="calculateRemaining()"
+                    id="clientPaid" 
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                >
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2 text-sm font-medium text-gray-900">
+                    Remaining Amount (DA)
+                </label>
+                <div class="p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
+                    <span x-text="remainingAmount.toFixed(2)"></span>
+                </div>
+            </div>
+            <div class="p-4 bg-yellow-50 rounded-lg" x-show="remainingAmount > 0">
+                <p class="text-sm text-yellow-700">
+                    <span class="font-medium">Note:</span> The remaining amount of <span class="font-semibold" x-text="remainingAmount.toFixed(2) + ' DA'"></span> will be added to the client's balance.
+                </p>
+            </div>
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-2">
+                <button 
+                    @click="paymentModalOpen = false"
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-100"
+                >
+                    Cancel
+                </button>
+                <button 
+                    @click="paymentModalOpen = false; $wire.set('clientPaid', clientPaid); $wire.set('status', remainingAmount == 0 ? 'PAID' : 'NOT PAID');"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300"
+                >
+                    Confirm Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Payment Modal -->
+
+<!-- Order Items (Livewire Step 3) -->
                     @if($currentstep === 3)
                     <div>
                         <!-- Entire Component Content Goes Here -->
@@ -917,4 +1013,20 @@ applyOverriddenTotal() {
         }
     }
 }
+    // --- Payment Modal Extension ---
+    (function() {
+        const originalOrderApp = window.orderApp;
+        window.orderApp = function(...args) {
+            const base = originalOrderApp(...args);
+            return Object.assign(base, {
+                paymentModalOpen: false,
+                paymentAmount: 0,
+                clientPaid: 0,
+                remainingAmount: 0,
+                calculateRemaining() {
+                    this.remainingAmount = Math.max(0, this.calculateTotal() - this.clientPaid);
+                }
+            });
+        };
+    })();
 </script>

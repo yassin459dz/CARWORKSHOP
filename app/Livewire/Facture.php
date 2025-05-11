@@ -14,6 +14,8 @@ use Livewire\Attributes\Computed;
 
 class Facture extends Component
 {
+    public $clientPaid = 0;
+    public $status = 'NOT PAID';
     public $currentstep = 1;
     public $totalstep = 3;
 
@@ -21,7 +23,6 @@ class Facture extends Component
     public $email;
     public $phone;
     public $fac;
-    public $status;
     public $gender;
     public $allbrands;
     public $allclients;
@@ -49,6 +50,7 @@ class Facture extends Component
     public $selectedCar = null;
     public $previousCarSelection = null; // Track previous car selection
 
+
     public function render()
     {
 
@@ -65,6 +67,9 @@ class Facture extends Component
         $this->fetchClients();
         $this->allcars = collect();
         $this->allcars = cars::all();
+        // Initialize payment properties
+        $this->status = 'NOT PAID';
+        $this->clientPaid = 0;
     }
     public function updatedSelectedMat($value)
     {
@@ -265,7 +270,33 @@ public function createMatricule($matNumber)
         }, $orderItems);
 
         $totalAmount = collect($processedOrderItems)->sum('total') + $this->extraCharge - $this->discountAmount;
-        // $matricule_id = $this->mat_id ?? $this->createMatricule();
+
+        // Only update client sold if the payment checkbox was checked (clientPaid > 0)
+        if ($this->clientPaid > 0) {
+            $remaining = $totalAmount - $this->clientPaid;
+            // If there's a remaining amount to be paid, update sold
+            if ($remaining > 0) {
+                $client = clients::findOrFail($this->selectedClient);
+                $currentSold = (float)($client->sold ?? 0);
+                $client->sold = $currentSold + $remaining;
+                $client->save();
+                Log::info("Client {$client->name} has a remaining balance of {$client->sold}");
+                $this->status = 'NOT PAID';
+            } else {
+                $this->status = 'PAID';
+            }
+        } else {
+            // Do not touch client sold
+            $this->status = 'NOT PAID';
+        }
+
+        // Determine paid_value: always set to what the client actually paid
+        $paidValue = 0;
+        if ($this->clientPaid > 0) {
+            $remaining = $totalAmount - $this->clientPaid;
+            $paidValue = $this->clientPaid;
+        }
+
 
         Factures::create([
             'client_id' => $this->selectedClient,
@@ -279,6 +310,9 @@ public function createMatricule($matNumber)
             'discount_amount' => $this->discountAmount,
             'created_at' => now(),
             'updated_at' => now(),
+            'status' => $this->status,
+            'client_paid' => $this->clientPaid,
+            'paid_value' => $paidValue,
         ]);
     }
 }

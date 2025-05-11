@@ -103,6 +103,7 @@ class Bl extends Component
             'total_amount' => $totalAmount,
             'extra_charge' => $this->extraCharge,
             'discount_amount' => $this->discountAmount,
+            'paid_value' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

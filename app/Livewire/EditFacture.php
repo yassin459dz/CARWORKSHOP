@@ -210,6 +210,7 @@ class EditFacture extends Component
             'total_amount' => $totalAmount,
             'extra_charge' => (float) $this->extraCharge,
             'discount_amount' => (float) $this->discountAmount,
+            'paid_value' => $this->paid_value ?? 0,
             'updated_at' => now(),
         ]);
 

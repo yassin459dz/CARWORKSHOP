@@ -18,10 +18,6 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
-            animation: {
-                'spin-slow': 'spin 1.5s linear infinite',
-                'bounce-slow': 'bounce 2s ',
-            },
         },
     },
     plugins: [

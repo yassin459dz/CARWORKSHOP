@@ -17,8 +17,7 @@ class Factures extends Model
         'discount_amount',
         'order_items',
         'status',
-
-
+        'paid_value',
     ];
     protected $casts = [
         'order_items' => 'json',
