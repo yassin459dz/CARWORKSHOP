@@ -259,7 +259,23 @@
  </div>
 </div>
 </div>
-
+@php
+                            $sold = $clientSold;
+                            $soldColor = 'bg-green-100 text-green-800 border-green-300';
+                            $soldLabel = 'Settled';
+                            if ($sold < 0) {
+                                $soldColor = 'bg-red-100 text-red-800 border-red-300';
+                                $soldLabel = 'Debt';
+                            } elseif ($sold > 0) {
+                                $soldColor = 'bg-blue-100 text-blue-800 border-blue-300';
+                                $soldLabel = 'Credit';
+                            }
+                        @endphp
+                        <span class="font-semibold">SOLD : {{ number_format($clientSold, 2) }} DA
+                            <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }}">
+                                {{ $soldLabel }}
+                            </span>
+                        </span>
 
 
                     @endif
@@ -290,14 +306,14 @@
 
                     <!-- Payment Checkbox (Step 3 Only) -->
 @if($currentstep === 3)
-    <div class="flex items-center mb-4 mt-4 p-3 bg-gray-50 rounded-lg">
+    <div class="flex items-center mb-4" x-init="$watch('paymentModalOpen', value => { if(!value) clientPaid = 0 })">
         <input 
+            id="will-make-payment" 
             type="checkbox" 
-            id="open-payment-modal" 
-            x-on:change="paymentModalOpen = !paymentModalOpen; if(paymentModalOpen) { clientPaid = calculateTotal(); calculateRemaining(); }"
-            class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+            x-model="willMakePayment"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
         >
-        <label for="open-payment-modal" class="ml-2 text-sm font-medium text-gray-900">
+        <label for="will-make-payment" class="ml-2 text-sm font-medium text-gray-900">
             Client will make partial/full payment now
         </label>
     </div>
@@ -332,37 +348,48 @@
         <!-- Modal Body -->
         <div class="space-y-6">
             <div class="p-4 mb-4 bg-blue-50 rounded-lg">
-                <p class="text-sm text-gray-700">
+            @if(isset($clientSold) && $clientSold !== null)
+                <p class="text-sm text-green-700">
+                    <span class="font-medium">Client Previous Sold:</span>
+                    <span class="font-semibold">{{ number_format($clientSold, 2) }} DA</span>
+                </p>
+                @endif
+                <p class="text-sm text-gray-700 mb-1">
                     <span class="font-medium">Facture Total</span> <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
                 </p>
+
+            </div>
+            <div class="p-4 mb-4 bg-blue-50 rounded-lg flex justify-between items-center">
+                <span class="text-sm text-gray-900 font-medium">Remaining Amount (DA)</span>
+                <span class="text-lg font-semibold text-gray-900">
+                    @if(isset($clientSold) && $clientSold !== null)
+                        <span x-text="(calculateTotal() + {{ $clientSold }}).toFixed(2) + ' DA'"></span>
+                    @else
+                        <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
+                    @endif
+                </span>
             </div>
             <div class="mb-4">
                 <label for="clientPaid" class="block mb-2 text-sm font-medium text-gray-900">
                     Payment Amount (DA)
                 </label>
                 <input 
-                    type="number" 
-                    step="0.01" 
-                    min="0" 
-                    :max="calculateTotal()"
-                    x-model.number="clientPaid" 
-                    @input="calculateRemaining()"
-                    id="clientPaid" 
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
+    type="number" 
+    step="0.01" 
+    min="0" 
+    :max="calculateTotal() + {{ (float)($clientSold ?? 0) }}" 
+    x-model.number="clientPaid" 
+    x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = null })"
+    id="clientPaid" 
+    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+/>
+
             </div>
-            <div class="mb-4">
-                <label class="block mb-2 text-sm font-medium text-gray-900">
-                    Remaining Amount (DA)
-                </label>
-                <div class="p-2.5 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg">
-                    <span x-text="remainingAmount.toFixed(2)"></span>
-                </div>
-            </div>
-            <div class="p-4 bg-yellow-50 rounded-lg" x-show="remainingAmount > 0">
-                <p class="text-sm text-yellow-700">
-                    <span class="font-medium">Note:</span> The remaining amount of <span class="font-semibold" x-text="remainingAmount.toFixed(2) + ' DA'"></span> will be added to the client's balance.
-                </p>
+            <div class="p-4 bg-yellow-50 rounded-lg flex justify-between items-center mt-2">
+                <span class="text-sm text-yellow-700 font-medium">New Sold:</span>
+                <span class="text-lg font-semibold text-yellow-700" 
+                    x-text="((@if(isset($clientSold) && $clientSold !== null) (calculateTotal() + {{ $clientSold }}) @else calculateTotal() @endif) - (clientPaid ? clientPaid : 0)).toFixed(2) + ' DA'">
+                </span>
             </div>
             <!-- Action Buttons -->
             <div class="flex justify-end space-x-2">
@@ -373,7 +400,7 @@
                     Cancel
                 </button>
                 <button 
-                    @click="paymentModalOpen = false; $wire.set('clientPaid', clientPaid); $wire.set('status', remainingAmount == 0 ? 'PAID' : 'NOT PAID');"
+                    @click="paymentModalOpen = false; $wire.set('clientPaid', clientPaid); $wire.set('status', remainingAmount == 0 ? 'PAID' : 'NOT PAID'); prepareSubmission();"
                     class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300"
                 >
                     Confirm Payment
@@ -390,12 +417,30 @@
                         <!-- Entire Component Content Goes Here -->
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">Current Order</h2>
+                            
                             <button
                             class="px-4 py-2 font-semibold text-red-500 transition-transform duration-100 ease-in-out bg-red-200 rounded-md hover:bg-red-600 hover:text-white active:scale-90"
                             @click="clearOrder">
                                 Clear All
                             </button>
                         </div>
+                        @php
+                            $sold = $clientSold;
+                            $soldColor = 'bg-green-100 text-green-800 border-green-300';
+                            $soldLabel = 'Settled';
+                            if ($sold < 0) {
+                                $soldColor = 'bg-red-100 text-red-800 border-red-300';
+                                $soldLabel = 'Debt';
+                            } elseif ($sold > 0) {
+                                $soldColor = 'bg-blue-100 text-blue-800 border-blue-300';
+                                $soldLabel = 'Credit';
+                            }
+                        @endphp
+                        <span class="font-semibold">SOLD : {{ number_format($clientSold, 2) }} DA
+                            <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }}">
+                                {{ $soldLabel }}
+                            </span>
+                        </span>
                         <div>
                             <!-- Order Items -->
                             <div class="space-y-4 max-h-[40vh] overflow-y-scroll no-scrollbar">
@@ -663,9 +708,9 @@
                                     @click="validateOrder">
                                     Validate Order
                                 </button> --}}
-                                <button @click="prepareSubmission" class="w-full py-3 mt-4 font-semibold text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg active:scale-90 hover:bg-blue-700">
-                                    <span x-text="isSubmitted ? 'Reset' : 'Validate Order'"></span>
-                                </button>
+                                <button @click="if (wantsToPay) { paymentModalOpen = true; if (!clientPaid) { clientPaid = calculateTotal(); calculateRemaining(); } } else { prepareSubmission(); }" class="w-full py-3 mt-4 font-semibold text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg active:scale-90 hover:bg-blue-700">
+    <span x-text="isSubmitted ? 'Reset' : 'Validate Order'"></span>
+</button>
                             </div>
                         </div>
                     </div>
@@ -696,14 +741,14 @@
 
                         @if($currentstep === $totalstep)
                         <div>
-
-
-    <!-- Single Button to Submit and Auto-Reset -->
-    {{-- <button @click="prepareSubmission" class="px-4 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">
-        <span x-text="isSubmitted ? 'Reset' : 'Submit Order'"></span>
-    </button> --}}
-
-
+                            <!-- Validate Order Button -->
+                            <button 
+                                @click="validateOrder()"
+                                type="button"
+                                class="px-4 py-2 font-medium text-white transition-transform duration-100 ease-in-out bg-green-600 rounded-lg hover:bg-green-700 active:scale-90"
+                            >
+                                Validate Order
+                            </button>
                         </div>
                         <!-- Override Total Modal -->
 <div
@@ -1009,7 +1054,19 @@ applyOverriddenTotal() {
         },
 
         validateOrder() {
-            alert('Order validated! Total: ' + this.calculateTotal().toFixed(2) + ' DA');
+            let clientSold = {{ (float)($clientSold ?? 0) }};
+            // If sold is Debt (sold < 0) or Credit (sold > 0), open modal regardless of checkbox
+            if (clientSold < 0 || clientSold > 0) {
+                this.paymentModalOpen = true;
+                return;
+            }
+            // If sold is Settled (0 or null), open modal ONLY if checkbox is checked
+            if (clientSold === 0 && this.willMakePayment) {
+                this.paymentModalOpen = true;
+                return;
+            }
+            // Otherwise, just validate the order directly
+            this.prepareSubmission();
         }
     }
 }
@@ -1022,6 +1079,7 @@ applyOverriddenTotal() {
                 paymentModalOpen: false,
                 paymentAmount: 0,
                 clientPaid: 0,
+                willMakePayment: false,
                 remainingAmount: 0,
                 calculateRemaining() {
                     this.remainingAmount = Math.max(0, this.calculateTotal() - this.clientPaid);

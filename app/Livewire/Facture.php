@@ -53,9 +53,14 @@ class Facture extends Component
 
     public function render()
     {
-
         $groupedCars = $this->getGroupedCarsProperty();
-        return view('livewire.Facture.facture', compact('groupedCars'));    }
+        $clientSold = 0;
+        if ($this->selectedClient) {
+            $client = \App\Models\clients::find($this->selectedClient);
+            $clientSold = $client ? $client->sold : 0;
+        }
+        return view('livewire.Facture.facture', compact('groupedCars', 'clientSold'));
+    }
 
     public function mount()
     {
@@ -271,31 +276,36 @@ public function createMatricule($matNumber)
 
         $totalAmount = collect($processedOrderItems)->sum('total') + $this->extraCharge - $this->discountAmount;
 
-        // Only update client sold if the payment checkbox was checked (clientPaid > 0)
+        // Update client sold (debt) correctly based on payment
+        $client = clients::findOrFail($this->selectedClient);
+        $currentSold = (float)($client->sold ?? 0);
+
         if ($this->clientPaid > 0) {
             $remaining = $totalAmount - $this->clientPaid;
             // If there's a remaining amount to be paid, update sold
             if ($remaining > 0) {
-                $client = clients::findOrFail($this->selectedClient);
-                $currentSold = (float)($client->sold ?? 0);
                 $client->sold = $currentSold + $remaining;
                 $client->save();
                 Log::info("Client {$client->name} has a remaining balance of {$client->sold}");
                 $this->status = 'NOT PAID';
             } else {
+                // Overpayment, reduce previous debt (allow negative)
+                $overpayment = abs($remaining);
+                $client->sold = $currentSold - $overpayment;
+                $client->save();
+                Log::info("Client {$client->name} has a negative balance of {$client->sold}");
                 $this->status = 'PAID';
             }
         } else {
-            // Do not touch client sold
-            $this->status = 'NOT PAID';
+            // If no payment was specified, treat as fully paid
+            $this->clientPaid = $totalAmount;
+            $client->sold = $currentSold;
+            $client->save();
+            $this->status = 'PAID';
         }
 
         // Determine paid_value: always set to what the client actually paid
-        $paidValue = 0;
-        if ($this->clientPaid > 0) {
-            $remaining = $totalAmount - $this->clientPaid;
-            $paidValue = $this->clientPaid;
-        }
+        $paidValue = $this->clientPaid > 0 ? $this->clientPaid : $totalAmount;
 
 
         Factures::create([
