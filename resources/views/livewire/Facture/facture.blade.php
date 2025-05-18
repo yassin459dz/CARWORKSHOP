@@ -311,9 +311,9 @@
             id="will-make-payment" 
             type="checkbox" 
             x-model="willMakePayment"
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 hidden"
         >
-        <label for="will-make-payment" class="ml-2 text-sm font-medium text-gray-900">
+        <label for="will-make-payment" class="ml-2 text-sm font-medium text-gray-900 hidden">
             Client will make partial/full payment now
         </label>
     </div>
@@ -379,7 +379,7 @@
     min="0" 
     :max="calculateTotal() + {{ (float)($clientSold ?? 0) }}" 
     x-model.number="clientPaid" 
-    x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = null })"
+    x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = calculateTotal() })"
     id="clientPaid" 
     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
 />
@@ -436,8 +436,8 @@
                                 $soldLabel = 'Credit';
                             }
                         @endphp
-                        <span class="font-semibold">SOLD : {{ number_format($clientSold, 2) }} DA
-                            <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }}">
+                        <span class="font-semibold hidden">SOLD : {{ number_format($clientSold, 2) }} DA
+                            <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }} hidden">
                                 {{ $soldLabel }}
                             </span>
                         </span>
@@ -703,14 +703,12 @@
 
                                     </span>
                                 </div>
-                                {{-- <button
+                                 <button
                                     class="w-full py-3 mt-4 font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
+                                type="button"
                                     @click="validateOrder">
                                     Validate Order
-                                </button> --}}
-                                <button @click="if (wantsToPay) { paymentModalOpen = true; if (!clientPaid) { clientPaid = calculateTotal(); calculateRemaining(); } } else { prepareSubmission(); }" class="w-full py-3 mt-4 font-semibold text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg active:scale-90 hover:bg-blue-700">
-    <span x-text="isSubmitted ? 'Reset' : 'Validate Order'"></span>
-</button>
+                                </button> 
                             </div>
                         </div>
                     </div>
@@ -740,16 +738,6 @@
                         @endif
 
                         @if($currentstep === $totalstep)
-                        <div>
-                            <!-- Validate Order Button -->
-                            <button 
-                                @click="validateOrder()"
-                                type="button"
-                                class="px-4 py-2 font-medium text-white transition-transform duration-100 ease-in-out bg-green-600 rounded-lg hover:bg-green-700 active:scale-90"
-                            >
-                                Validate Order
-                            </button>
-                        </div>
                         <!-- Override Total Modal -->
 <div
 x-show="overrideTotalModalOpen"
@@ -1054,19 +1042,9 @@ applyOverriddenTotal() {
         },
 
         validateOrder() {
-            let clientSold = {{ (float)($clientSold ?? 0) }};
-            // If sold is Debt (sold < 0) or Credit (sold > 0), open modal regardless of checkbox
-            if (clientSold < 0 || clientSold > 0) {
-                this.paymentModalOpen = true;
-                return;
-            }
-            // If sold is Settled (0 or null), open modal ONLY if checkbox is checked
-            if (clientSold === 0 && this.willMakePayment) {
-                this.paymentModalOpen = true;
-                return;
-            }
-            // Otherwise, just validate the order directly
-            this.prepareSubmission();
+            // Always open payment modal regardless of client sold status or checkbox
+            this.paymentModalOpen = true;
+            return;
         }
     }
 }
