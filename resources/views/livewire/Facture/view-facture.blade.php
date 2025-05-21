@@ -14,19 +14,60 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <div class="inline-flex items-center px-2 py-1 text-green-100 rounded-full
-                        {{ $status === 'PAID' ? 'bg-green-500/20' : 'bg-red-500/20' }}">
-                        @if ($status === 'PAID')
-                            <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                            </svg>
-                        @endif
-                        {{ $status }}
-                    </div>
+    @php
+        $paid = floatval($facture->paid_value ?? 0);
+        $total = floatval($facture->total_amount ?? 0);
+        $percent = $total > 0 ? round(($paid / $total) * 100) : 0;
+        if ($paid == 0) {
+            $status = 'NOT PAID';
+            $color = 'bg-red-50 text-red-600 ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30';
+            $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5M14.25 9.75l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            $label = $status;
+        } elseif ($paid == $total && $total > 0) {
+            $status = 'PAID';
+            $color = 'bg-blue-50 text-blue-600 ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30';
+            $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            $label = $status;
+        } elseif ($paid > 0 && $paid < $total) {
+            $status = 'PARTIAL';
+            $color = 'bg-orange-50 text-orange-700 ring-orange-600/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30';
+            $icon = '';
+            $label = 'PAID : '.$percent.' %';
+        } elseif ($paid > $total && $total > 0) {
+            $status = 'OVERPAID';
+            $color = 'bg-purple-50 text-purple-700 ring-purple-600/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30';
+            $icon = '';
+            $label = 'PAID : '.$percent.' %';
+        } else {
+            $status = 'UNKNOWN';
+            $color = 'bg-gray-50 text-gray-600 ring-gray-400/10';
+            $icon = '';
+            $label = $status;
+        }
+    @endphp
+    <span class="inline-flex items-center justify-center gap-x-1 rounded-md text font-semibold ring-1 ring-inset px-2 py-1 min-w-[1.5rem] {{ $color }} whitespace-nowrap">
+        {!! $icon !!}
+        <span>{{ $label }}</span>
+    </span>
+    <td class="px-6 py-4 text-center">
+                                    <span
+                                    class="
+    inline-flex items-center justify-center
+    gap-x-1
+    rounded-md
+    text font-semibold
+    ring-1 ring-inset ring-green-600/10
+    px-2 py-1
+    min-w-[1.5rem]
+    bg-green-50 text-green-600
+    dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
+    whitespace-nowrap
+  ">
+
+
+  {{ number_format($facture->paid_value,2,',',' ') }} DA
+                                    </span>
+                                </td>
 
 
                     <div class="flex space-x-2">
@@ -131,10 +172,12 @@
                         <span>Discount :</span>
                         <span>-{{ number_format($financial['discount_amount'], 2) }} DA</span>
                     </div>
+                    
                     <div class="flex justify-between text-xl font-bold text-blue-600 ">
                         <span>Total :</span>
                         <span>{{ number_format($financial['total_amount'], 2) }} DA</span>
                     </div>
+
                 </div>
                 <div class="pt-2 mt-4 border-t ">
                     <div class="flex items-center mb-2 space-x-2">

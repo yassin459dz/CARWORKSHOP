@@ -307,19 +307,19 @@
                     <!-- Payment Checkbox (Step 3 Only) -->
 @if($currentstep === 3)
     <div class="flex items-center mb-4" x-init="$watch('paymentModalOpen', value => { if(!value) clientPaid = 0 })">
-        <input 
-            id="will-make-payment" 
-            type="checkbox" 
+        <input
+            id="will-make-payment"
+            type="checkbox"
             x-model="willMakePayment"
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 hidden"
+            class="hidden w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
         >
-        <label for="will-make-payment" class="ml-2 text-sm font-medium text-gray-900 hidden">
+        <label for="will-make-payment" class="hidden ml-2 text-sm font-medium text-gray-900">
             Client will make partial/full payment now
         </label>
     </div>
 @endif
 <!-- Payment Modal -->
-<div 
+<div
     x-show="paymentModalOpen"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 transform scale-90"
@@ -336,7 +336,7 @@
             <h3 class="text-xl font-semibold text-gray-900">
                 Process Payment
             </h3>
-            <button 
+            <button
                 @click="paymentModalOpen = false"
                 class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
             >
@@ -347,20 +347,20 @@
         </div>
         <!-- Modal Body -->
         <div class="space-y-6">
-            <div class="p-4 mb-4 bg-blue-50 rounded-lg">
+            <div class="p-4 mb-4 rounded-lg bg-blue-50">
             @if(isset($clientSold) && $clientSold !== null)
                 <p class="text-sm text-green-700">
                     <span class="font-medium">Client Previous Sold:</span>
                     <span class="font-semibold">{{ number_format($clientSold, 2) }} DA</span>
                 </p>
                 @endif
-                <p class="text-sm text-gray-700 mb-1">
+                <p class="mb-1 text-sm text-gray-700">
                     <span class="font-medium">Facture Total</span> <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
                 </p>
 
             </div>
-            <div class="p-4 mb-4 bg-blue-50 rounded-lg flex justify-between items-center">
-                <span class="text-sm text-gray-900 font-medium">Remaining Amount (DA)</span>
+            <div class="flex items-center justify-between p-4 mb-4 rounded-lg bg-blue-50">
+                <span class="text-sm font-medium text-gray-900">Remaining Amount (DA)</span>
                 <span class="text-lg font-semibold text-gray-900">
                     @if(isset($clientSold) && $clientSold !== null)
                         <span x-text="(calculateTotal() + {{ $clientSold }}).toFixed(2) + ' DA'"></span>
@@ -373,33 +373,34 @@
                 <label for="clientPaid" class="block mb-2 text-sm font-medium text-gray-900">
                     Payment Amount (DA)
                 </label>
-                <input 
-    type="number" 
-    step="0.01" 
-    min="0" 
-    :max="calculateTotal() + {{ (float)($clientSold ?? 0) }}" 
-    x-model.number="clientPaid" 
+                <input
+    type="number"
+    step="0.01"
+    min="0"
+
+    :max="calculateTotal() + @js((float)($clientSold ?? 0))"
+    x-model.number="clientPaid"
     x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = calculateTotal() })"
-    id="clientPaid" 
+    id="clientPaid"
     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
 />
 
             </div>
-            <div class="p-4 bg-yellow-50 rounded-lg flex justify-between items-center mt-2">
-                <span class="text-sm text-yellow-700 font-medium">New Sold:</span>
-                <span class="text-lg font-semibold text-yellow-700" 
+            <div class="flex items-center justify-between p-4 mt-2 rounded-lg bg-yellow-50">
+                <span class="text-sm font-medium text-yellow-700">New Sold:</span>
+                <span class="text-lg font-semibold text-yellow-700"
                     x-text="((@if(isset($clientSold) && $clientSold !== null) (calculateTotal() + {{ $clientSold }}) @else calculateTotal() @endif) - (clientPaid ? clientPaid : 0)).toFixed(2) + ' DA'">
                 </span>
             </div>
             <!-- Action Buttons -->
             <div class="flex justify-end space-x-2">
-                <button 
+                <button
                     @click="paymentModalOpen = false"
                     class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-100"
                 >
                     Cancel
                 </button>
-                <button 
+                <button
                     @click="paymentModalOpen = false; $wire.set('clientPaid', clientPaid); $wire.set('status', remainingAmount == 0 ? 'PAID' : 'NOT PAID'); prepareSubmission();"
                     class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300"
                 >
@@ -417,7 +418,7 @@
                         <!-- Entire Component Content Goes Here -->
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">Current Order</h2>
-                            
+
                             <button
                             class="px-4 py-2 font-semibold text-red-500 transition-transform duration-100 ease-in-out bg-red-200 rounded-md hover:bg-red-600 hover:text-white active:scale-90"
                             @click="clearOrder">
@@ -436,7 +437,7 @@
                                 $soldLabel = 'Credit';
                             }
                         @endphp
-                        <span class="font-semibold hidden">SOLD : {{ number_format($clientSold, 2) }} DA
+                        <span class="hidden font-semibold">SOLD : {{ number_format($clientSold, 2) }} DA
                             <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }} hidden">
                                 {{ $soldLabel }}
                             </span>
@@ -708,7 +709,7 @@
                                 type="button"
                                     @click="validateOrder">
                                     Validate Order
-                                </button> 
+                                </button>
                             </div>
                         </div>
                     </div>

@@ -78,6 +78,7 @@
                                 <th scope="col" class="py-4 text-center ">Remark</th>
                                 <th scope="col" class="px-6 py-4 text-center">Status</th>
                                 <th scope="col" class="px-6 py-4 text-center">Total</th>
+                                <th scope="col" class="px-6 py-4 text-center">Paid</th>
                                 <th scope="col" class="px-6 py-4 text-center">Action</th>
                             </tr>
                         </thead>
@@ -160,31 +161,59 @@
                                 </td>
                                 <td class="py-4 text-center ">
                                     <span class="inline-block max-w-[15ch] truncate text-sm font-medium ">{{ $facture->remark }}</span></td>
-                                <td class="px-2 py-4 text-center">
-                                    <span class="
+                                    <td class="px-2 py-4 text-center">
+                                    @php
+    $paid = floatval($facture->paid_value ?? 0);
+    $total = floatval($facture->total_amount ?? 0);
+    $percent = $total > 0 ? round(($paid / $total) * 100) : 0;
+    if ($paid == 0) {
+        $status = 'NOT PAID';
+        $color = 'bg-red-50 text-red-600 ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30';
+        $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5M14.25 9.75l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+        $label = $status;
+    } elseif ($paid == $total && $total > 0) {
+        $status = 'PAID';
+        $color = 'bg-blue-50 text-blue-600 ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30';
+        $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+        $label = $status;
+    } elseif ($paid > 0 && $paid < $total) {
+        $status = 'PARTIAL';
+        $color = 'bg-orange-50 text-orange-700 ring-orange-600/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30';
+        $icon = '';
+        $label = $percent.' %';
+    } elseif ($paid > $total && $total > 0) {
+        $status = 'OVERPAID';
+        $color = 'bg-purple-50 text-purple-700 ring-purple-600/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30';
+
+        $label = $percent.' %';
+    } else {
+        $status = 'UNKNOWN';
+        $color = 'bg-gray-50 text-gray-600 ring-gray-400/10';
+        $label = $status;
+    }
+@endphp
+<span class="inline-flex items-center justify-center gap-x-1 rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem] {{ $color }} whitespace-nowrap">
+    {!! $icon !!}
+    <span>{{ $label }}</span>
+ </span>
+                                <td class="px-6 py-4 text-center">
+                                    <span
+                                    class="
     inline-flex items-center justify-center
     gap-x-1
     rounded-md
     text-sm font-medium
-    bg-green-50 text-blue-600
     ring-1 ring-inset ring-blue-600/10
     px-2 py-1
     min-w-[1.5rem]
+    bg-blue-50 text-blue-600
     dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30
     whitespace-nowrap
-                                    {{ $facture->status === 'PAID' ? 'bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30' : 'bg-red-50 text-red-600 ring-1 ring-inset ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30' }}">
-                                    @if ($facture->status === 'PAID')
-                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    @else
-                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5M14.25 9.75l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    @endif
-                                    <span>{{ $facture->status }}</span>
-                                </span>
+  ">
 
+
+                                        {{ $facture->total_amount }} DA
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span
@@ -202,7 +231,7 @@
   ">
 
 
-                                        {{ $facture->total_amount }} DA
+  {{ number_format($facture->paid_value,2,',',' ') }} DA
                                     </span>
                                 </td>
                                 <td class="py-4 ">

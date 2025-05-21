@@ -68,6 +68,7 @@
                                 <th scope="col" class="px-6 py-3 text-center">ID</th>
                                 <th scope="col" class="px-6 py-3 text-center">Client Name</th>
                                 <th scope="col" class="px-6 py-3 text-center">Phone N°</th>
+                                <th scope="col" class="px-6 py-3 text-center">SOLD</th>
                                 <th scope="col" class="px-6 py-3 text-center">Action</th>
                             </tr>
                         </thead>
@@ -89,7 +90,8 @@
                                   bg-blue-50 text-blue-600
                                   dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30
                                     whitespace-nowrap">
-                                    {{ $client->name }}</span>
+                                    {{ $client->name }}
+                                </span>
                                 </td>
 
                                     </td>
@@ -105,9 +107,29 @@
                                   bg-red-50 text-red-600
                                   dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30
                                     whitespace-nowrap">
-                                    {{ $client->phone }}</span>
+                                    {{ $client->phone }}
+                                </span>
                                     </td>
+                                    <td class="px-6 py-4 text-center">
+                                    <span class="
+                                    inline-flex items-center justify-center
+                                    gap-x-1
+                                    rounded-md
+                                    text-sm font-medium
+                                    ring-1 ring-inset ring-green-600/10
+                                    px-2 py-1
+                                    min-w-[1.5rem]
+                                  bg-green-50 text-green-600
+                                  dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
+                                    whitespace-nowrap">
+                                @php
+                                $sold = $client->sold ?? 0; // Adjust the property name if needed
+                                $soldLabel = $sold < 0 ? 'Debt' : ($sold > 0 ? 'Credit' : 'Settled');
+                                @endphp
+                                {{ number_format($sold, 2, ',', ' ') }} DA 
+                                </span>
 
+</td>
                                 <td wire:ignore class="px-6 py-4 text-center">
                                     <!-- Modal toggle -->
                                     <button

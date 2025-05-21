@@ -51,9 +51,8 @@
                         <th class="w-8 px-1 py-2 text-center">OK</th>
                         <th class="px-4 py-2">Date</th>
                         <th class="px-4 py-2">Start</th>
-                        <th class="px-4 py-2 text-green-600">CASH IN</th>
+                        <th class="px-4 py-2 text-blue-600">SALES</th>
                         <th class="px-4 py-2 text-red-600">CASH OUT</th>
-                        <th class="px-4 py-2">Balance</th>
                         <th class="px-4 py-2">Decalage</th>
                         <th class="w-16 px-2 py-2 text-center">Edited</th>
                         <th class="px-4 py-2">Action</th>
@@ -83,11 +82,10 @@
                 <path d="M9 9l6 6m0-6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         @endif
-    </td>                        <td class="px-4 py-2 font-medium">{{ \Carbon\Carbon::parse($data['created_at'])->format('H:i-d/m/Y') }}</td>
+    </td>                   <td class="px-4 py-2 font-medium">{{ \Carbon\Carbon::parse($data['created_at'])->format('H:i-d/m/Y') }}</td>
                             <td class="px-4 py-2">{{ number_format($data['start'], 2, ',', ' ') }} DA</td>
-                            <td class="px-4 py-2 text-green-700">{{ number_format($data['entree'], 2, ',', ' ') }} DA</td>
+                            <td class="px-4 py-2 text-blue-700">{{ number_format($data['entree'], 2, ',', ' ') }} DA</td>
                             <td class="px-4 py-2 text-red-700">{{ number_format(collect($data['mouvements'])->sum('montant'), 2, ',', ' ') }} DA</td>
-                            <td class="px-4 py-2 font-semibold">{{ number_format($data['solde'], 2, ',', ' ') }} DA</td>
                             <td class="px-4 py-2 font-semibold">{{ number_format($data['decalage'] ?? 0,2,',',' ') }} DA</td>
                             <td class="w-16 px-2 py-2 text-xs text-center text-gray-600">
                                 @if($checked)
@@ -197,7 +195,10 @@
                                             <th class="px-4 py-3 font-medium text-center text-gray-700">ID</th>
                                             <th class="px-4 py-3 font-medium text-center text-gray-700">CLIENT</th>
                                             <th class="px-4 py-3 font-medium text-center text-gray-700">CAR</th>
+                                            <th class="px-4 py-3 font-medium text-center text-gray-700">SALES</th>
                                             <th class="px-4 py-3 font-medium text-center text-gray-700">VALUE IN</th>
+
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -223,10 +224,16 @@
                                                     </span>
                                                 </td>
                                                 <td class="px-4 py-3 text-center">
-                                                    <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-green-600/10 px-2 py-1 min-w-[1.5rem] bg-green-50 text-green-600 whitespace-nowrap">
+                                                    <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-blue-600/10 px-2 py-1 min-w-[1.5rem] bg-blue-50 text-blue-600 whitespace-nowrap">
                                                     {{ number_format($facture->total_amount,2,',',' ') }} DA
                                                     </span>
                                                 </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-medium ring-1 ring-inset ring-green-600/10 px-2 py-1 min-w-[1.5rem] bg-green-50 text-green-600 whitespace-nowrap">
+                                                    {{ number_format($facture->paid_value,2,',',' ') }} DA
+                                                    </span>
+                                                </td>
+
                                             </tr>
                                         @empty
                                             <tr>
@@ -236,10 +243,15 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50">
                                         <tr class="font-medium">
-                                            <td colspan="3" class="px-4 py-3 text-lg text-right border-t">TOTAL CASH IN :</td>
+                                            <td colspan="3" class="px-4 py-3 text-lg text-right border-t">TOTAL OF :</td>
+                                            <td class="px-4 py-3 text-center">
+                                                <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-lg font-medium ring-1 ring-inset ring-blue-600/30 px-2 py-1 min-w-[1.5rem] bg-blue-50 text-blue-800 whitespace-nowrap">
+                                                    {{ number_format($inflow, 2, ',', ' ') }} DA
+                                                </span>
+                                            </td>
                                             <td class="px-4 py-3 text-center">
                                                 <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-lg font-medium ring-1 ring-inset ring-green-600/30 px-2 py-1 min-w-[1.5rem] bg-green-50 text-green-800 whitespace-nowrap">
-                                                    {{ number_format($inflow, 2, ',', ' ') }} DA
+                                                    {{ number_format($facturesOfDay->sum('paid_value'), 2, ',', ' ') }} DA
                                                 </span>
                                             </td>
                                         </tr>
@@ -325,7 +337,7 @@
                             <div class="flex items-center justify-between px-4 py-3">
                                 <span class="font-semibold text-gray-700">Total Cash In</span>
                                 <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-base font-bold ring-1 ring-inset ring-green-600/10 px-2 py-1 min-w-[1.5rem] bg-green-50 text-green-600 whitespace-nowrap">
-                                + {{ number_format($inflow, 2, ',', ' ') }} DA                                </span>
+                                + {{ number_format($facturesOfDay->sum('paid_value'), 2, ',', ' ') }} DA                                </span>
                             </div>
                             <div class="flex items-center justify-between px-4 py-3">
                                 <span class="font-semibold text-gray-700">Total Cash Out</span>
@@ -335,7 +347,7 @@
                             <div class="flex items-center justify-between px-4 py-3 bg-gray-50">
                                 <span class="font-medium text-gray-800">Expected Final Balance</span>
                                 <span class="text-lg inline-flex items-center justify-center gap-x-1 rounded-md  font-bold ring-1 ring-inset ring-green-600/10 px-2 py-1 min-w-[1.5rem] bg-green-50 text-green-800 whitespace-nowrap">
-                                    {{ number_format($total, 2, ',', ' ') }} DA</span>
+                                    {{ number_format($dailyBalances[$selectedDate]['start'] + $facturesOfDay->sum('paid_value') - collect($mouvementsOfDay)->sum('montant'), 2, ',', ' ') }} DA</span>
                             </div>
                         </div>
                     </div>
@@ -343,10 +355,13 @@
     <!-- CASH COUNT & BALANCING (pure Alpine.js) -->
     <div
         x-data="{
-            total: @entangle('total'),
+            start: {{ $dailyBalances[$selectedDate]['start'] ?? 0 }},
+            paidIn: {{ $facturesOfDay->sum('paid_value') ?? 0 }},
+            cashOut: {{ collect($mouvementsOfDay)->sum('montant') ?? 0 }},
+            get total() { return this.start + this.paidIn - this.cashOut },
             actual: @entangle('actualCashCount'),
             get decalage() { return this.actual - this.total },
-            percent() { return Math.min(Math.abs(this.decalage / this.total * 100), 100) }
+            percent() { return Math.min(Math.abs(this.decalage / (this.total || 1) * 100), 100) }
         }"
         class="overflow-hidden bg-white border border-gray-200 rounded-lg shadow-md"
     >

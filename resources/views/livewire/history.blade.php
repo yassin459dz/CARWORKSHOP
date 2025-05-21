@@ -15,42 +15,51 @@
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                Facture History
+                <span class="text-xl font-bold text-black tracking-wider uppercase">Facture History</span>
             </div>
 
             <!-- Client Details -->
-            <div class="flex flex-wrap items-center text-2xl gap-x-8 gap-y-4">
-                <div class="flex items-center gap-3 group">
-                    <span class="text-xl font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-300">Client</span>
-                    <span class="inline-flex items-center justify-center px-2 py-1 text-2xl font-bold min-w-[2.5rem] text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+            <div class="flex items-center text-2xl gap-x-4 overflow-x-auto pb-2 whitespace-nowrap">
+                <div class="flex items-center gap-2 group">
+                    <span class="text font-semibold tracking-wider  uppercase dark:text-gray-300">Client</span>
+                    <span class="inline-flex items-center justify-center px-2 py-1 text-lg font-bold min-w-[2.5rem] text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
                         {{ $matricule->client->name }}
                     </span>
                 </div>
 
-                <div class="hidden text-3xl font-bold text-gray-900 transform md:block dark:text-white">|</div>
+                <div class="text-xl font-bold ">|</div>
 
-                <div class="flex items-center gap-3 group">
-                    <span class="text-xl font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-300">Car</span>
-                    <span class="inline-flex items-center justify-center px-2 py-1 text-2xl min-w-[2.5rem] font-bold text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+                <div class="flex items-center gap-2 group">
+                    <span class=" font-bold tracking-wider uppercase ">Car</span>
+                    <span class="inline-flex items-center justify-center px-2 py-1 text-xl min-w-[2.5rem] font-bold text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
                         {{ $matricule->car->model }}
                     </span>
                 </div>
 
-                <div class="hidden text-3xl font-bold text-gray-900 transform md:block dark:text-white">|</div>
+                <div class="text-xl font-bold ">|</div>
 
-                <div class="flex items-center gap-3 group">
-                    <span class="text-xl font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-300">Matricule</span>
-                    <span class="inline-flex items-center justify-center px-2 py-1 text-2xl min-w-[2.5rem] font-bold text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+                <div class="flex items-center gap-2 group">
+                    <span class="text font-bold tracking-wider  uppercase ">Matricule</span>
+                    <span class="inline-flex items-center justify-center px-2 py-1 text-xl min-w-[2.5rem] font-bold text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
                         {{ $matricule->mat }}
                     </span>
                 </div>
 
-                <div class="hidden text-3xl font-bold text-gray-900 transform md:block dark:text-white">|</div>
+                <div class="text-xl font-bold ">|</div>
                 
-                <div class="flex items-center gap-3 group">
-                    <span class="text-xl font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-300">Count</span>
-                    <span class="inline-flex items-center justify-center px-2 py-1 text-2xl font-bold min-w-[2.5rem] text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+                <div class="flex items-center gap-2 group">
+                    <span class="text font-bold tracking-wider uppercase">Count</span>
+                    <span class="inline-flex items-center justify-center px-2 py-1 text-xl font-bold min-w-[2.5rem] text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
                         {{ $matricule->factures_count }}
+                    </span>
+                </div>
+
+                <div class="text-xl font-bold ">|</div>
+                
+                <div class="flex items-center gap-2 group">
+                    <span class="text-xl font-bold tracking-wider uppercase">Sold</span>
+                    <span class="inline-flex items-center justify-center px-2 py-1 text-xl font-bold min-w-[2.5rem] text-blue-600 rounded-md gap-x-1 bg-green-50 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+                        {{ number_format($matricule->client->sold, 2, ',', ' ') }} DA
                     </span>
                 </div>
             </div>
@@ -83,6 +92,7 @@
                                 <th scope="col" class="px-6 py-4 text-center">Remark</th>
                                 <th scope="col" class="px-6 py-4 text-center">STATUS</th>
                                 <th scope="col" class="px-6 py-4 text-center">Total</th>
+                                <th scope="col" class="px-6 py-4 text-center">PAID VALUE</th>
                                 <th scope="col" class="px-6 py-4 text-center">Action</th>
                             </tr>
                         </thead>
@@ -118,30 +128,59 @@
                                 </td>
                                 <td class="px-3 py-4 font-medium text-center text-gray-900 dark:text-white">{{ $facture->remark }}</td>
                                 <td class="px-2 py-4 text-center">
-                                    <span class="
-    inline-flex items-center justify-center
-    gap-x-1
-    rounded-md
-    text-sm font-medium
-    bg-green-50 text-blue-600
-    ring-1 ring-inset ring-blue-600/10
-    px-2 py-1
-    min-w-[1.5rem]
-    dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30
-    whitespace-nowrap
-                                    {{ $facture->status === 'PAID' ? 'bg-blue-50 text-blue-600 ring-1 ring-inset ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30' : 'bg-red-50 text-red-600 ring-1 ring-inset ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30' }}">
-                                    @if ($facture->status === 'PAID')
-                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    @else
-                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5M14.25 9.75l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    @endif
-                                    <span>{{ $facture->status }}</span>
-                                </span>
+                                    @php
+    $paid = floatval($facture->paid_value ?? 0);
+    $total = floatval($facture->total_amount ?? 0);
+    $percent = $total > 0 ? round(($paid / $total) * 100) : 0;
+    if ($paid == 0) {
+        $status = 'NOT PAID';
+        $color = 'bg-red-50 text-red-600 ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30';
+        $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 9.75l4.5 4.5M14.25 9.75l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+        $label = $status;
+    } elseif ($paid == $total && $total > 0) {
+        $status = 'PAID';
+        $color = 'bg-blue-50 text-blue-600 ring-blue-600/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30';
+        $icon = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+        $label = $status;
+    } elseif ($paid > 0 && $paid < $total) {
+        $status = 'PARTIAL';
+        $color = 'bg-orange-50 text-orange-700 ring-orange-600/10 dark:bg-orange-400/10 dark:text-orange-400 dark:ring-orange-400/30';
+        $icon = '';
+        $label = $percent.' %';
+    } elseif ($paid > $total && $total > 0) {
+        $status = 'OVERPAID';
+        $color = 'bg-purple-50 text-purple-700 ring-purple-600/10 dark:bg-purple-400/10 dark:text-purple-400 dark:ring-purple-400/30';
+        $icon = '';
+        $label = $percent.' %';
+    } else {
+        $status = 'UNKNOWN';
+        $color = 'bg-gray-50 text-gray-600 ring-gray-400/10';
+        $icon = '';
+        $label = $status;
+    }
+@endphp
+<span class="inline-flex items-center justify-center gap-x-1 rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem] {{ $color }} whitespace-nowrap">
+    {!! $icon !!}
+    <span>{{ $label }}</span>
+</span>
 
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span
+                                    class="
+                                        inline-flex items-center justify-center
+                                        gap-x-1
+                                        rounded-md
+                                        text-sm font-medium
+                                        ring-1 ring-inset ring-blue-600/10
+                                        px-2 py-1
+                                        min-w-[1.5rem]
+                                      bg-blue-50 text-blue-600
+                                      dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30
+                                        whitespace-nowrap"
+                                    >
+                                        {{ $facture->total_amount }} DA
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <span
@@ -157,7 +196,7 @@
                                       dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
                                         whitespace-nowrap"
                                     >
-                                        {{ $facture->total_amount }} DA
+                                    {{ number_format($facture->paid_value,2,',',' ') }} DA
                                     </span>
                                 </td>
                                 <td class="py-4 ">
