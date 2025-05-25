@@ -11,10 +11,17 @@ class ViewClient extends Component
 {
     public $name;
     public $phone;
-
+    public $phone2;
+    public $address;
+    public $remark;
+    public $sold;   
     public $client;
+    public $date;
+    public $updated;
 
-    protected $listeners = ['showClient' => 'loadClient'];
+    public $updated_at;
+
+    protected $listeners = ['edit-mode' => 'edit'];
 
     // public function loadClient($client)
     // {
@@ -27,6 +34,12 @@ class ViewClient extends Component
         $this->client=clients::findOrFail($id);
         $this->name=$this->client->name;
         $this->phone=$this->client->phone;
+        $this->phone2=$this->client->phone2;
+        $this->address=$this->client->address;
+        $this->remark=$this->client->remark;
+        $this->sold=$this->client->sold;
+        $this->date = $this->client->created_at->format('d/F/Y');
+        $this->updated=$this->client->updated_at;
 
     }
     public function render()

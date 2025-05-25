@@ -1,38 +1,105 @@
-<div data-modal-target="modalEl" id="modalEl" tabindex="-1" class="fixed inset-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4">
+<!-- Client View Modal -->
+<div wire:ignore.self data-modal-target="modalEl" id="modalEl" tabindex="-1" class="fixed inset-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4">
     <div class="relative w-full max-w-2xl max-h-full">
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-600">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl">
-                    View Client
-                </h3>
-                <button data-modal-toggle="modalEl" type="button" class="inline-flex items-center justify-center w-8 h-8 text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l6 6m0 0l6 6M7 7L1 1m6 6l6-6" />
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
+        <div class="relative bg-white rounded-2xl shadow-2xl dark:bg-gray-900">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 rounded-t-2xl dark:border-gray-700 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center justify-center w-14 h-14 bg-blue-200 rounded-full dark:bg-blue-700">
+                        <svg class="w-8 h-8 text-blue-700 dark:text-blue-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $name }}</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Full client profile and status</p>
+                    </div>
+                </div>
+                <button
+            data-modal-toggle="modalEl" type="button"
+            class="absolute text-gray-600 top-6 right-6 hover:text-red-700"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+        </button>
             </div>
 
-            <div class="p-6">
-                <dl class="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-                    <div class="flex flex-col pb-3">
-                        <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Client</dt>
-                        <input wire:model="name" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" readonly />
+            <!-- Modal Body -->
+            <div class="p-6 bg-white dark:bg-gray-900">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Client Info Card -->
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-5 shadow-sm flex flex-col gap-4">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                            </svg>
+                            <span class="font-semibold text-gray-800 dark:text-white">{{ $phone ?? 'No phone' }}<span class="font-semibold text-gray-800 dark:text-white"> - {{ $phone2 }}</span></span>
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2h2v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l1.293 1.293a1 1 0 001.414-1.414l-7-7z"></path>
+                            </svg>
+                            <span class="font-semibold text-gray-800 dark:text-white">Address : {{ $address }}</span>
+                        </div>
                     </div>
-                    <div class="flex flex-col py-3">
-                        <dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">Phone Number</dt>
-                        <input wire:model="phone" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" readonly />
+                    <!-- Sold Status Card -->
+                    <div class="flex flex-col gap-4 justify-between">
+                        <div>
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Sold Status</span>
+                            @php
+                                $sold = $sold ?? 0;
+                                $status = $sold < 0 ? 'Debt' : ($sold > 0 ? 'Credit' : 'Settled');
+                                $badgeColor = $sold < 0 ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200' : ($sold > 0 ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200');
+                            @endphp
+                            <span class="inline-flex items-center px-3 py-1 mt-2 rounded-full text-sm font-semibold {{ $badgeColor }}">
+                                {{ $status }}
+                                <span class="ml-2 font-mono">{{ number_format($sold, 2) }}</span>
+                            </span>
+                        </div>
+                        <div class="mt-4">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Client Since</span>
+                            <div class="text-gray-800 dark:text-gray-100 font-semibold mt-1">{{ $date }}</div>
+                        </div>
                     </div>
-                </dl>
+                </div>
+
+                <!-- Remarks Section (Full Width) -->
+                <div class="mt-8">
+                    <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <svg class="w-5 h-5 mr-2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+                        </svg>
+                        Remarks
+                    </label>
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-gray-700 dark:text-gray-200 min-h-[60px]">
+                        {{ $remark ?? 'No remarks.' }}
+                    </div>
+                </div>
             </div>
 
-            <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button data-modal-toggle="modalEl" type="button" class="rounded-lg bg-blue-700 px-5 py-2.5 text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                    I accept
-                </button>
-                <button data-modal-toggle="modalEl" type="button" class="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white">
-                    Decline
-                </button>
+            <!-- Modal Footer -->
+            <div class="flex flex-col md:flex-row items-center justify-between p-6 gap-4 border-t border-gray-200 rounded-b-2xl dark:border-gray-700 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-800 dark:to-gray-900">
+                <div class="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="font-medium">Last updated:</span>
+                    <span class="font-mono">{{ $updated }}</span>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" wire:click="editClient" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition font-semibold shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536M9 13l6-6M4 20h7a2 2 0 002-2v-7a2 2 0 00-2-2H4a2 2 0 00-2 2v7a2 2 0 002 2z"></path></svg>
+                        Edit
+                    </button>
+                    <button type="button" wire:click="deleteClient" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition font-semibold shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Delete
+                    </button>
+                    <button data-modal-toggle="modalEl" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition font-semibold shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>

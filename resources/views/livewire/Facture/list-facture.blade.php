@@ -193,7 +193,7 @@
     }
 @endphp
 <span class="inline-flex items-center justify-center gap-x-1 rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 min-w-[1.5rem] {{ $color }} whitespace-nowrap">
-    {!! $icon !!}
+    
     <span>{{ $label }}</span>
  </span>
                                 <td class="px-6 py-4 text-center">

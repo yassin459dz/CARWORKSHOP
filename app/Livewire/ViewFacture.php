@@ -47,6 +47,7 @@ class ViewFacture extends Component
         $this->client = [
             'name' => $this->facture->client->name,
             'phone' => $this->facture->client->phone,
+            'sold' => $this->facture->client->sold,
             'phone2' => $this->facture->client->phone2,
             'address' => $this->facture->client->address,
 

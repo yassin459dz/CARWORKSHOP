@@ -100,13 +100,13 @@
                         <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        <h2 class="font-medium text-blue-800">Client : <span>{{ $client['name'] }}</span> </h2>
+                        <h2 class="font-medium text-xl text-blue-800">Client : <span>{{ $client['name'] }}</span> </h2>
                     </div>
-                    <div class="flex items-center mt-4 space-x-2">
+                    <div class="flex items-center mt-8 space-x-2">
                         <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                           </svg>
-                        <h2 class="font-medium text-blue-800 ">Phone :
+                        <h2 class="font-medium text-blue-800 text-xl ">Phone :
                             <span>{{ $client['phone'] }}
                             @if (!empty($client['phone2']))
                                 <span> - {{ $client['phone2'] }}
@@ -118,11 +118,11 @@
 
 
                 </div>
-                <div class="p-3 rounded-lg bg-indigo-50">
+                <div class="pt-2 pl-6 rounded-lg bg-indigo-50">
                         <div>
-                            <h2 class="font-semibold text-blue-800">Car : {{ $vehicle['model'] }}</h2>
-                            <h2 class="font-semibold text-blue-800">Matricule : {{ $vehicle['matricule'] }}</h2>
-                            <h2 class="font-semibold text-blue-800">KM : {{ number_format($vehicle['kilometers']) }}</h2>
+                            <h2 class="font-semibold text-xl my-2 text-blue-800">Car : {{ $vehicle['model'] }}</h2>
+                            <h2 class="font-semibold text-xl my-2 text-blue-800">Matricule : {{ $vehicle['matricule'] }}</h2>
+                            <h2 class="font-semibold text-xl my-2 text-blue-800">KM : {{ number_format($vehicle['kilometers']) }}</h2>
                         </div>
                 </div>
             </div>
@@ -177,13 +177,22 @@
                         <span>Total :</span>
                         <span>{{ number_format($financial['total_amount'], 2) }} DA</span>
                     </div>
-
+                    <div class="flex justify-between text-xl font-bold  ">
+                        <span>Sold :</span>
+                        <span>                                
+                          @php
+                          $sold = $client['sold'] ?? 0;
+                          $soldLabel = $sold < 0 ? 'Debt' : ($sold > 0 ? 'Credit' : 'Settled');
+                          @endphp
+                          {{ number_format($sold, 2, ',', ' ') }} DA </span>
+                    </div>
                 </div>
-                <div class="pt-2 mt-4 border-t ">
+                <div class="pt-2 mt-2 border-t ">
+                    
                     <div class="flex items-center mb-2 space-x-2">
                         <h2 class="text-lg font-medium text-gray-800">Remark :</h2>
                     </div>
-                    <p class="text-base text-gray-800 rounded-lg bg-gray-50">{{ $remark }}</p>
+                    <p class="text-base text-gray-800 rounded-lg bg-gray-50 ">{{ $remark }}</p>
                 </div>
             </div>
         </div>
@@ -325,6 +334,10 @@
           <tr class="total-row">
             <td>Total:</td>
             <th id="final-total">{{ number_format($financial['total_amount'], 2) }} DA</th>
+          </tr>
+          <tr class="total-row">
+            <td>Sold:</td>
+            <th id="final-total">{{ number_format($sold, 2, ',', ' ') }} DA</th>
           </tr>
         </table>
         <div>

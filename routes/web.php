@@ -107,7 +107,10 @@ Route::view('profile', 'profile')
     ->middleware(['auth', 'verified'])
     ->name('cashbox');
 
-
+    Route::post('/lock-cashbox', function () {
+        session()->forget('cashbox_unlocked');
+        return redirect()->back();
+    })->name('lock-cashbox');
 require __DIR__.'/auth.php';
 
 Route::get('/testing-pos',[TestingController::class, 'testingPos']);

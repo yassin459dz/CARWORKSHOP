@@ -20,6 +20,17 @@ new class extends Component
     <!-- Primary Navigation Menu -->
     <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
+            @if(session('cashbox_unlocked'))
+                <form method="POST" action="{{ route('lock-cashbox') }}" style="display:inline;">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="absolute top-0 right-0 px-6 py-2 mt-2 mr-4 font-medium text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg shadow-md text-gl hover:bg-blue-700 active:scale-90"
+                    >
+                        Lock Cashbox
+                    </button>
+                </form>
+            @endif
             <div class="flex">
                 <!-- Logo -->
                 <div class="flex items-center shrink-0">
