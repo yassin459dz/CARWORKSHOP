@@ -164,3 +164,16 @@
 
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('client') === '209') {
+            window.dispatchEvent(new CustomEvent('edit-mode', { detail: { id: 209 } }));
+            // Livewire event dispatch (for Alpine/Livewire integration)
+            if (window.Livewire) {
+                window.Livewire.dispatch('edit-mode', { id: 209 });
+            }
+        }
+    });
+</script>
+

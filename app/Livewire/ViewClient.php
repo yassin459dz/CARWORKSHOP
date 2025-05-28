@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\On;
 use App\Models\clients;
-
+use App\Models\Factures;
 class ViewClient extends Component
 {
     public $name;
@@ -14,12 +14,12 @@ class ViewClient extends Component
     public $phone2;
     public $address;
     public $remark;
-    public $sold;   
+    public $sold;
     public $client;
     public $date;
     public $updated;
-
     public $updated_at;
+    public $factureCount;
 
     protected $listeners = ['edit-mode' => 'edit'];
 
@@ -40,7 +40,7 @@ class ViewClient extends Component
         $this->sold = $this->client->sold;
         $this->date = $this->client->created_at->format('d/F/Y');
         $this->updated = $this->client->updated_at;
-
+        $this->factureCount = Factures::where('client_id', $this->client->id)->count();
         // Calculate duration using Carbon
         $created = $this->client->created_at;
         $now = \Carbon\Carbon::parse('2025-05-27T23:56:04+01:00');
