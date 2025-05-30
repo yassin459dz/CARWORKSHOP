@@ -58,6 +58,8 @@
         class="block w-96 pl-4 pr-12 py-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
         placeholder="Search Client or Phone N°" required />
 </div>
+
+
     <!-- Client table -->
     <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -131,6 +133,7 @@
                                 </span>
 
 </td>
+
                                 <td wire:ignore class="px-6 py-4 text-center">
                                     <!-- Modal toggle -->
                                     <button @click="$dispatch('edit-mode', { id: {{ $client->id }} })"
