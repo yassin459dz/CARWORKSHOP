@@ -6,7 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\Rule;
 use Livewire\Attributes\On;
 use App\Models\clients;
-
+use Livewire\Features\SupportEvents\DispatchesBrowserEvents;
 class CreateEditClient extends Component
 {
     public $client;
@@ -23,6 +23,7 @@ class CreateEditClient extends Component
     #[Rule('nullable')]
 
     public $phone2;
+    
     public $address;
     public $remark;
     public $sold;

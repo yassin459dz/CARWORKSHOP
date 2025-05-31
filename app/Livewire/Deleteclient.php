@@ -8,6 +8,7 @@ class Deleteclient extends Component
 {
     public $clientId;
     public $clientName;
+    public $prefix = ''; // Add prefix property
 
 
     public function render()

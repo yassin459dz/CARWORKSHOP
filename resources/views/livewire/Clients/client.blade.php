@@ -43,7 +43,7 @@
 
     <div>
         <div >
-            
+
             <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
                 Create Client
             </button>
@@ -129,7 +129,7 @@
                                 $sold = $client->sold ?? 0; // Adjust the property name if needed
                                 $soldLabel = $sold < 0 ? 'Debt' : ($sold > 0 ? 'Credit' : 'Settled');
                                 @endphp
-                                {{ number_format($sold, 2, ',', ' ') }} DA 
+                                {{ number_format($sold, 2, ',', ' ') }} DA
                                 </span>
 
 </td>
@@ -144,7 +144,9 @@
 
                                     <livewire:view-client />
                                     <!-- Trigger Edit Modal -->
-                                    <button @click="$dispatch('edit-mode', { id: {{ $client->id }} })" data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="font-medium text-green-600 dark:text-green-500 hover:underline">Edit</button>
+                                    <button
+                                    @click="$dispatch('edit-mode', { id: {{ $client->id }} })" data-modal-target="authentication-modal" data-modal-toggle="authentication-modal"
+                                    class="font-medium text-green-600 dark:text-green-500 hover:underline">Edit</button>
                                     <!-- Delete Button in Parent Blade File -->
                                     <button data-modal-target="popup-modal-{{ $client->id }}" data-modal-toggle="popup-modal-{{ $client->id }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">
                                     Delete
@@ -166,17 +168,3 @@
     {{ $clients->links('vendor.pagination.custom') }}
 
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('client') === '209') {
-            window.dispatchEvent(new CustomEvent('edit-mode', { detail: { id: 209 } }));
-            // Livewire event dispatch (for Alpine/Livewire integration)
-            if (window.Livewire) {
-                window.Livewire.dispatch('edit-mode', { id: 209 });
-            }
-        }
-    });
-</script>
-

@@ -9,6 +9,8 @@ use App\Models\clients;
 use App\Models\Factures;
 class ViewClient extends Component
 {
+    public $editMode = false;
+    public $originalData = [];
     public $name;
     public $phone;
     public $phone2;
@@ -54,6 +56,46 @@ class ViewClient extends Component
         if (empty($parts)) $parts[] = '0 days';
         $this->duration = implode(', ', $parts);
     }
+    public function enableEditMode()
+    {
+        $this->originalData = [
+            'name' => $this->name,
+            'phone' => $this->phone,
+            'phone2' => $this->phone2,
+            'address' => $this->address,
+            'remark' => $this->remark,
+        ];
+        $this->editMode = true;
+    }
+
+    public function saveEdit()
+    {
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:255',
+            'phone2' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'remark' => 'nullable|string',
+        ]);
+        $this->client->update([
+            'name' => $this->name,
+            'phone' => $this->phone,
+            'phone2' => $this->phone2,
+            'address' => $this->address,
+            'remark' => $this->remark,
+        ]);
+        $this->editMode = false;
+        $this->updated = $this->client->fresh()->updated_at;
+    }
+
+    public function cancelEdit()
+    {
+        foreach ($this->originalData as $key => $value) {
+            $this->$key = $value;
+        }
+        $this->editMode = false;
+    }
+
     public function render()
     {
         return view('livewire.clients.view-client');
