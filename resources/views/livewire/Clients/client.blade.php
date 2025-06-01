@@ -135,6 +135,7 @@
 </td>
 
                                 <td wire:ignore class="px-6 py-4 text-center">
+                                <livewire:view-client wire:ignore.self/>
                                     <!-- Modal toggle -->
                                     <button @click="$dispatch('edit-mode', { id: {{ $client->id }} })"
                                     data-modal-toggle="modalEl"
@@ -142,7 +143,6 @@
                                     View
                                     </button>
 
-                                    <livewire:view-client />
                                     <!-- Trigger Edit Modal -->
                                     <button
                                     @click="$dispatch('edit-mode', { id: {{ $client->id }} })" data-modal-target="authentication-modal" data-modal-toggle="authentication-modal"

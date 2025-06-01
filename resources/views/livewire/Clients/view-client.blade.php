@@ -11,7 +11,9 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-lg font-semibold text-white">{{ $name }}</h1>
+
+<h1 class="text-lg font-semibold text-white">{{ $name }}</h1>
+
                     <p class="text-xs text-slate-300">Full client profile and information</p>
                 </div>
             </div>

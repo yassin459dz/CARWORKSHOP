@@ -94,6 +94,8 @@ class ViewClient extends Component
             $this->$key = $value;
         }
         $this->editMode = false;
+        // Emit event to reset the CreateEditClient form
+        $this->dispatch('reset-create-client');
     }
 
     public function render()

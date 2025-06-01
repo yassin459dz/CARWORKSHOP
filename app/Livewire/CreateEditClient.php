@@ -9,6 +9,7 @@ use App\Models\clients;
 use Livewire\Features\SupportEvents\DispatchesBrowserEvents;
 class CreateEditClient extends Component
 {
+    protected $listeners = ['reset-create-client' => 'resetForm'];
     public $client;
     public $formtitle='Create Client';
     public $editform=false;
@@ -37,8 +38,23 @@ class CreateEditClient extends Component
         return view('livewire.clients.create-edit-client');
     }
 
+    public function resetForm()
+    {
+        $this->reset(['name', 'phone', 'phone2', 'address', 'remark', 'sold', 'client']);
+        $this->formtitle = 'Create Client';
+        $this->editform = false;
+        $this->liteform = false;
+    }
+
     public function save (){
-        $validated=$this->validate();
+        $validated = $this->validate([
+            'name' => 'required|unique:clients,name',
+            'phone' => 'required|unique:clients,phone',
+            'phone2' => 'nullable',
+            'address' => 'nullable',
+            'remark' => 'nullable',
+            'sold' => 'nullable',
+        ]);
         clients::create($validated);
         $this->dispatch('refresh-clients');
         // session()->flash('status', 'Client Created');
@@ -47,7 +63,6 @@ class CreateEditClient extends Component
         $this->dispatch('browser', 'close-modal');
         // Call the refreshPage function to handle the page refresh/redirect
         return $this->refreshPage();
-
     }
 
     #[On('reset-modal')]

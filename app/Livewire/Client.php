@@ -27,7 +27,7 @@ class Client extends Component
             });
         }
 
-        $clients = $query->paginate(50);
+        $clients = $query->paginate(10);
 
         return view('livewire.clients.client', compact('clients'));
     }
