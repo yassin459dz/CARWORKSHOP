@@ -18,8 +18,8 @@ new class extends Component
 
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
-    <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+    <div class="max-w-6xl sm:px-6 lg:px-8">
+        <div class="flex h-16">
             @if(session('cashbox_unlocked'))
                 <form method="POST" action="{{ route('lock-cashbox') }}" style="display:inline;">
                     @csrf

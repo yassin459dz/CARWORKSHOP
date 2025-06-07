@@ -1,14 +1,14 @@
 <div
     x-data="orderApp({{ $product->toJson() }})"
     x-init="initializeState()"
-    class="mx-auto max-w-7xl"
+    class="mx-auto max-w-[1340px]"
 >
 <form wire:submit.prevent="submit" x-ref="form">
 
     <div class="bg-white shadow-2xl rounded-xl">
             <div class="flex flex-col md:flex-row">
                 <!-- Left Section: Product List (mostly unchanged) -->
-                <div class="w-full p-6 md:w-3/5 bg-gray-50">
+                <div class="flex flex-col w-full px-6 pt-2 pb-6 md:w-3/5 bg-gray-50" style="max-height: 100vh;">
                 <!-- THIS HOW TO CALL THE SEARCH AND CREATE A NEW PRODUCT -->
                     <div wire:ignore>
                         <livewire:product-header />
@@ -31,7 +31,8 @@
                         </template>
                     </div> --}}
 
-                    <div class="grid max-h-screen grid-cols-1 gap-4 p-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 no-scrollbar ">
+                    <div class="flex-1 overflow-y-auto smooth-scroll">
+                        <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2 lg:grid-cols-3">
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div
                                 @click="addToOrder(product)"
@@ -49,14 +50,15 @@
                                 </div>
                             </div>
                         </template>
+                            </div>
                       </div>
                 </div>
 
                 <!-- Right Section: Order Summary -->
-                <div class="w-full p-6 bg-white md:w-2/5">
+                <div class="w-full px-6 bg-white md:w-2/5">
                     <div>
                         <!-- Entire Component Content Goes Here -->
-                        <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center justify-between pt-2 ">
                             <h2 class="text-2xl font-bold text-gray-800">Current Order</h2>
                             <button
                             class="px-4 py-2 font-semibold text-red-500 transition-transform duration-100 ease-in-out bg-red-200 rounded-md hover:bg-red-600 active:scale-90 hover:text-white "
@@ -66,7 +68,7 @@
                         </div>
                         <div>
                             <!-- Order Items -->
-                            <div class="space-y-4 max-h-[40vh] overflow-y-scroll no-scrollbar">
+                            <div class="space-y-4 max-h-[35vh] overflow-y-scroll smooth-scroll">
                                 <template x-for="(item, index) in orderItems" :key="item.id">
                                     <div
                                         x-data="{ isDragging: false }"
@@ -387,6 +389,30 @@ x-cloak
             </div>
         </div>
     </form>
+
+<!-- Smooth scrolling and custom scrollbar styles for product list -->
+<style>
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* for momentum on mobile */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.smooth-scroll::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+.smooth-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Tailwind slate-300 */
+    border-radius: 8px;
+}
+.smooth-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Tailwind slate-400 */
+}
+.smooth-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+</style>
 </div>
 
 <script>
@@ -632,3 +658,4 @@ applyOverriddenTotal() {
     }
 }
 </script>
+

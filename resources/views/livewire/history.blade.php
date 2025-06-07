@@ -204,10 +204,6 @@
                                        class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                        View
                                     </a>
-                                    <a wire:navigate href="{{ route('editfacture', ['edit' => $facture->id]) }}"
-                                       class="font-medium text-green-600 dark:text-green-500 hover:underline">
-                                       Edit
-                                    </a>
 
                                      <button data-modal-target="popup-modal-{{ $facture->id }}" data-modal-toggle="popup-modal-{{ $facture->id }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">
                                         Delete

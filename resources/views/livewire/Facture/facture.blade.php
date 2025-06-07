@@ -1,13 +1,13 @@
 <div
     x-data="orderApp({{ $product->toJson() }})"
     x-init="initializeState()"
-    class="mx-auto max-w-7xl"
+    class="mx-auto max-w-[1340px]"
 >
     <form wire:submit.prevent="submit">
         <div class="bg-white shadow-2xl rounded-xl">
             <div class="flex flex-col md:flex-row">
                 <!-- Left Section: Product List (mostly unchanged) -->
-                <div class="relative w-full p-6 md:w-3/5 bg-gray-50">
+                <div class="flex flex-col w-full px-6 pt-2 pb-6 md:w-3/5 bg-gray-50" style="max-height: 100vh;">
                     <!-- THIS HOW TO CALL THE SEARCH AND CREATE A NEW PRODUCT -->
 
             <!-- Right: Search bar and button -->
@@ -30,7 +30,8 @@
                         </template>
                     </div> --}}
                     {{-- THE OLD DESIGN --}}
-                    <div class="grid max-h-screen grid-cols-1 gap-4 p-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 no-scrollbar">
+                    <div class="flex-1 overflow-y-auto smooth-scroll">
+                        <div class="grid grid-cols-1 gap-4 p-3 sm:grid-cols-2 lg:grid-cols-3">
 
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div
@@ -46,7 +47,7 @@
                                 <h3 class="mb-2 text-lg font-bold text-center text-gray-800 capitalize" x-text="product.name"></h3>
 
                                 <!-- Description Badge -->
-                                <span class="self-center px-3 mb-2 text-[15px] font-medium text-red-600 bg-gray-100 rounded-full" x-text="product.description"></span>
+                                <span class="self-center px-3 mb-2 text-base font-bold text-red-600 rounded-full" x-text="product.description"></span>
 
                                 <!-- Price -->
                                 <div class="mt-auto text-center">
@@ -54,14 +55,16 @@
                                 </div>
                             </div>
                         </template>
+                                                    </div>
+
                     </div>
                 </div>
 
                 <!-- Right Section: Order Summary -->
-                <div class="w-full p-6 bg-white md:w-2/5">
+                <div class="w-full bg-white md:w-2/5">
                     <!-- Client Selection (Livewire Step 1) -->
                     @if($currentstep === 1)
-                    <div class="mb-6">
+                    <div class="mb-6 ">
 {{-------------------------------Client START----------------------------}}
 <div>
     <div class="relative max-w-sm ">
@@ -262,10 +265,10 @@
 @php
                             $sold = $clientSold;
                             $soldColor = 'bg-green-100 text-green-800 border-green-300';
-                            $soldLabel = 'Settled';
+                            $soldLabel = 'No Sold';
                             if ($sold < 0) {
                                 $soldColor = 'bg-red-100 text-red-800 border-red-300';
-                                $soldLabel = 'Debt';
+                                $soldLabel = 'Negative';
                             } elseif ($sold > 0) {
                                 $soldColor = 'bg-blue-100 text-blue-800 border-blue-300';
                                 $soldLabel = 'Credit';
@@ -276,7 +279,6 @@
                                 {{ $soldLabel }}
                             </span>
                         </span>
-
 
                     @endif
                     <!-- Vehicle Details (Livewire Step 2) -->
@@ -306,7 +308,7 @@
 
                     <!-- Payment Checkbox (Step 3 Only) -->
 @if($currentstep === 3)
-    <div class="flex items-center mb-4" x-init="$watch('paymentModalOpen', value => { if(!value) clientPaid = 0 })">
+    <div class="flex items-center " x-init="$watch('paymentModalOpen', value => { if(!value) clientPaid = 0 })">
         <input
             id="will-make-payment"
             type="checkbox"
@@ -414,9 +416,10 @@
 
 <!-- Order Items (Livewire Step 3) -->
                     @if($currentstep === 3)
-                    <div>
+
+                    <div class="px-6">
                         <!-- Entire Component Content Goes Here -->
-                        <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center justify-between pt-2">
                             <h2 class="text-2xl font-bold text-gray-800">Current Order</h2>
 
                             <button
@@ -428,10 +431,10 @@
                         @php
                             $sold = $clientSold;
                             $soldColor = 'bg-green-100 text-green-800 border-green-300';
-                            $soldLabel = 'Settled';
+                            $soldLabel = 'No Sold';
                             if ($sold < 0) {
                                 $soldColor = 'bg-red-100 text-red-800 border-red-300';
-                                $soldLabel = 'Debt';
+                                $soldLabel = 'Negative';
                             } elseif ($sold > 0) {
                                 $soldColor = 'bg-blue-100 text-blue-800 border-blue-300';
                                 $soldLabel = 'Credit';
@@ -444,7 +447,7 @@
                         </span>
                         <div>
                             <!-- Order Items -->
-                            <div class="space-y-4 max-h-[40vh] overflow-y-scroll no-scrollbar">
+                            <div class="space-y-4 max-h-[35vh] overflow-y-scroll smooth-scroll ">
                                 <template x-for="(item, index) in orderItems" :key="item.id">
                                     <div
                                         x-data="{ isDragging: false }"
@@ -473,7 +476,7 @@
                                     >
                                         <div class="flex-grow">
                                             <div class="font-semibold text-gray-800 capitalize" x-text="item.name"></div>
-                                            <div class="text-sm font-bold text-red-500" x-text="item.description"></div>
+                                            <div class="text-sm font-bold text-red-600" x-text="item.description"></div>
                                         </div>
                                         <div class="flex items-center space-x-2">
                                             <button
@@ -788,6 +791,29 @@ x-cloak
             </div>
         </div>
     </form>
+    <!-- Smooth scrolling and custom scrollbar styles for product list -->
+<style>
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* for momentum on mobile */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.smooth-scroll::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+.smooth-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Tailwind slate-300 */
+    border-radius: 8px;
+}
+.smooth-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Tailwind slate-400 */
+}
+.smooth-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+</style>
 </div>
 
 <script>
