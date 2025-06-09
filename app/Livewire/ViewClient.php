@@ -10,6 +10,8 @@ use App\Models\Factures;
 class ViewClient extends Component
 {
     public $editMode = false;
+    public $deleteMode = false;
+
     public $originalData = [];
     public $name;
     public $phone;
@@ -22,15 +24,11 @@ class ViewClient extends Component
     public $updated;
     public $updated_at;
     public $factureCount;
+        public $clientId;
+    public $clientName;
+    public $prefix = ''; // Add prefix property
 
     protected $listeners = ['edit-mode' => 'edit'];
-
-    // public function loadClient($client)
-    // {
-    //     $this->name = $client['name'];
-    //     $this->phone = $client['phone'];
-    // }
-    public $duration;
 
     public function edit($id){
         $this->client = clients::findOrFail($id);
@@ -43,22 +41,12 @@ class ViewClient extends Component
         $this->date = $this->client->created_at->format('d/F/Y');
         $this->updated = $this->client->updated_at;
         $this->factureCount = Factures::where('client_id', $this->client->id)->count();
-        // Calculate duration using Carbon
-        $created = $this->client->created_at;
-        $now = \Carbon\Carbon::parse('2025-05-27T23:56:04+01:00');
-        $years = $created->diffInYears($now);
-        $months = $created->copy()->addYears($years)->diffInMonths($now);
-        $days = $created->copy()->addYears($years)->addMonths($months)->diffInDays($now);
-        $parts = [];
-        if ($years > 0) $parts[] = $years . ' year' . ($years > 1 ? 's' : '');
-        if ($months > 0) $parts[] = $months . ' month' . ($months > 1 ? 's' : '');
-        if ($days > 0) $parts[] = $days . ' day' . ($days > 1 ? 's' : '');
-        if (empty($parts)) $parts[] = '0 days';
-        $this->duration = implode(', ', $parts);
     }
+
     public function enableEditMode()
     {
         $this->originalData = [
+            'sold' => $this->sold,
             'name' => $this->name,
             'phone' => $this->phone,
             'phone2' => $this->phone2,
@@ -68,6 +56,37 @@ class ViewClient extends Component
         $this->editMode = true;
     }
 
+    public function enableDeleteMode()
+    {
+        $this->originalData = [
+            'name' => $this->name,
+        ];
+        $this->deleteMode = true;
+
+    }
+
+    public function deleteClient()
+    {
+        if (!$this->client) {
+            $this->dispatch('toast', 'No client selected.');
+            return;
+        }
+    
+        $id = $this->client->id;
+        $this->client->delete();
+    
+        $this->dispatch('clientDeleted');
+        $this->deleteMode = false;
+        $this->name = $this->client->name;
+        session()->flash('status-delete', "{$this->name} has been deleted."); // Use string interpolation
+        return $this->redirect('/client', navigate: true); // Redirect after deletion
+
+    
+        // Emit custom event with deleted id
+       // $this->dispatch('client-deleted', id: $id);
+    }
+    
+    
     public function saveEdit()
     {
         $this->validate([
@@ -76,6 +95,7 @@ class ViewClient extends Component
             'phone2' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'remark' => 'nullable|string',
+            'sold' => 'nullable|numeric',
         ]);
         $this->client->update([
             'name' => $this->name,
@@ -83,6 +103,7 @@ class ViewClient extends Component
             'phone2' => $this->phone2,
             'address' => $this->address,
             'remark' => $this->remark,
+            'sold' => $this->sold,
         ]);
         $this->editMode = false;
         $this->updated = $this->client->fresh()->updated_at;
@@ -90,9 +111,9 @@ class ViewClient extends Component
 
     public function cancelEdit()
     {
-        foreach ($this->originalData as $key => $value) {
-            $this->$key = $value;
-        }
+        //foreach ($this->originalData as $key => $value) {
+            //$this->$key = $value;
+        //}
         $this->editMode = false;
         // Emit event to reset the CreateEditClient form
         $this->dispatch('reset-create-client');

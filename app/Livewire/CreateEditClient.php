@@ -44,6 +44,7 @@ class CreateEditClient extends Component
         $this->formtitle = 'Create Client';
         $this->editform = false;
         $this->liteform = false;
+        
     }
 
     public function save (){
@@ -68,6 +69,7 @@ class CreateEditClient extends Component
     #[On('reset-modal')]
     public function close(){
         $this->reset();
+        $this->dispatch('reset-create-client');
     }
 
     #[On('edit-mode')]

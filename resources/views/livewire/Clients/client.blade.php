@@ -4,6 +4,7 @@
     </h2>
 </x-slot>
 <div class="py-12">
+
     <!-- Session Status Alert -->
     @if (session('status-created'))
     <div id="alert-1" class="flex items-center p-4 mb-4 text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
@@ -53,11 +54,32 @@
         </div>
     </div>
 <!-- Search Form -->
-<div class="relative flex max-w-md mx-auto mb-8">
-    <input wire:model.live="search" type="search" id="location-search"
-        class="block w-96 pl-4 pr-12 py-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
-        placeholder="Search Client or Phone N°" required />
-</div>
+<div
+    x-data='{
+        search: "",
+        clients: @json($clients),
+        get filtered() {
+            const q = this.search.toLowerCase().trim();
+            if (!q) {
+                return this.clients;
+            }
+            return this.clients.filter(c =>
+                c.name.toLowerCase().includes(q) ||
+                c.phone.includes(q)
+            );
+        }
+    }'
+    class="space-y-4"
+>
+    <!-- Front-end search field -->
+    <div class="relative max-w-md mx-auto">
+        <input
+            x-model="search"
+            type="search"
+            placeholder="Search Client or Phone N°"
+            class="block w-full pl-4 pr-12 py-2.5 text-sm rounded-lg border"
+        />
+    </div>
 
 
     <!-- Client table -->
@@ -75,14 +97,13 @@
                                 <th scope="col" class="px-6 py-3 text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($clients as $client)
-                            <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800">
-                                <td class="px-3 py-4 font-medium text-center dark:text-white">
-                                    <span class="inline-flex items-center justify-center text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">#{{ $client->id }}</span>
+                        <tbody>
+                <template x-for="client in filtered" :key="client.id">
+                    <tr class="divide-y">
+                        <td class="px-6 py-4 text-center" x-text="`#${client.id}`"></td>
+                        <td class="px-6 py-4 text-center">
 
-                                <td class="px-6 py-4 text-center">
-                                    <span class="
+                            <span class="
                                     inline-flex items-center justify-center
                                     gap-x-1
                                     rounded-md
@@ -92,15 +113,10 @@
                                     min-w-[1.5rem]
                                   bg-blue-50 text-blue-600
                                   dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30
-                                    whitespace-nowrap">
-                                    {{ $client->name }}
-                                </span>
-                                </td>
-
-                                    </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="
-                                    inline-flex items-center justify-center
+                                    whitespace-nowrap" x-text="client.name"></span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="inline-flex items-center justify-center
                                     gap-x-1
                                     rounded-md
                                     text-sm font-medium
@@ -109,13 +125,11 @@
                                     min-w-[1.5rem]
                                   bg-red-50 text-red-600
                                   dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/30
-                                    whitespace-nowrap">
-                                    {{ $client->phone }}
-                                </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                    <span class="
-                                    inline-flex items-center justify-center
+                                    whitespace-nowrap" x-text="client.phone"></span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="inline-flex items-center justify-center
                                     gap-x-1
                                     rounded-md
                                     text-sm font-medium
@@ -124,38 +138,31 @@
                                     min-w-[1.5rem]
                                   bg-green-50 text-green-600
                                   dark:bg-green-400/10 dark:text-green-400 dark:ring-green-400/30
-                                    whitespace-nowrap">
-                                @php
-                                $sold = $client->sold ?? 0; // Adjust the property name if needed
-                                $soldLabel = $sold < 0 ? 'Debt' : ($sold > 0 ? 'Credit' : 'Settled');
-                                @endphp
-                                {{ number_format($sold, 2, ',', ' ') }} DA
-                                </span>
-
-</td>
-
-                                <td wire:ignore class="px-6 py-4 text-center">
-                                <livewire:view-client wire:ignore.self/>
+                                    whitespace-nowrap"
+                                x-text="new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2 }).format(client.sold || 0) + ' DA'"
+                            ></span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <!-- Dispatch native browser events so Livewire can listen -->
                                     <!-- Modal toggle -->
-                                    <button @click="$dispatch('edit-mode', { id: {{ $client->id }} })"
+                                    <button @click="$dispatch('edit-mode', { id: client.id })"
                                     data-modal-toggle="modalEl"
                                     class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                     View
                                     </button>
 
-                                    <!-- Trigger Edit Modal -->
-                                    <button
-                                    @click="$dispatch('edit-mode', { id: {{ $client->id }} })" data-modal-target="authentication-modal" data-modal-toggle="authentication-modal"
-                                    class="font-medium text-green-600 dark:text-green-500 hover:underline">Edit</button>
-                                    <!-- Delete Button in Parent Blade File -->
-                                    <button data-modal-target="popup-modal-{{ $client->id }}" data-modal-toggle="popup-modal-{{ $client->id }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">
+                                                                        <!-- Delete Button in Parent Blade File -->
+                               {{-- <button data-modal-target="popup-modal-{{ $client->id }}" data-modal-toggle="popup-modal-{{ $client->id }}" class="font-medium text-red-600 dark:text-red-500 hover:underline">
                                     Delete
                                     </button>
-                                    <livewire:deleteclient :clientId="$client->id" />
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
+                                    <livewire:deleteclient :clientId="$client->id" /> --}}
+                        </td>
+                    </tr>
+                </template>
+                <tr x-show="filtered.length === 0">
+                    <td colspan="5" class="p-4 text-center text-gray-500">No clients match your search.</td>
+                </tr>
+            </tbody>
                     </table>
                     <!-- If there are no clients -->
                      @if ($clients->isEmpty())
@@ -165,6 +172,6 @@
             </div>
         </div>
     </div>
-    {{ $clients->links('vendor.pagination.custom') }}
 
 </div>
+                            <livewire:view-client wire:ignore.self/>

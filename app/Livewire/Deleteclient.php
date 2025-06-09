@@ -39,4 +39,6 @@ class Deleteclient extends Component
         return $this->redirect('/client', navigate: true); // Redirect after deletion
 
     }
+
+
 }
