@@ -24,7 +24,7 @@ class ViewClient extends Component
     public $updated;
     public $updated_at;
     public $factureCount;
-        public $clientId;
+    public $clientId;
     public $clientName;
     public $prefix = ''; // Add prefix property
 
@@ -111,9 +111,9 @@ class ViewClient extends Component
 
     public function cancelEdit()
     {
-        //foreach ($this->originalData as $key => $value) {
-            //$this->$key = $value;
-        //}
+        foreach ($this->originalData as $key => $value) {
+            $this->$key = $value;
+        }
         $this->editMode = false;
         // Emit event to reset the CreateEditClient form
         $this->dispatch('reset-create-client');

@@ -1,6 +1,6 @@
 <!-- Client View Modal -->
 <div wire:ignore.self id="modalEl" data-modal-target="modalEl" aria-hidden="true" data-modal-backdrop="static"
-     tabindex="-1" class="fixed inset-0 z-50 items-center justify-center hidden w-full h-screen max-h-screen p-2 bg-black/30">
+     tabindex="-1" class="fixed inset-0 z-50 items-center justify-center hidden w-full h-screen max-h-screen p-2 backdrop-blur-sm">
     @if($deleteMode)
     <div
     x-data
@@ -61,6 +61,13 @@
                     <p class="text-xs text-slate-300">Full client profile and information</p>
                 </div>
             </div>
+            @if($editMode)
+            <h3 class="text-lg font-semibold text-white">edit</h3>
+            @elseif($deleteMode)
+            <h3 class="text-lg font-semibold text-white">delete</h3>
+            @else
+            <h3 class="text-lg font-semibold text-white">view</h3>
+            @endif
             <button data-modal-toggle="modalEl" wire:click="cancelEdit" type="button" class="p-1 transition-colors rounded-lg text-white/80 hover:text-red-600 bg-white/10 hover:bg-white/30">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
