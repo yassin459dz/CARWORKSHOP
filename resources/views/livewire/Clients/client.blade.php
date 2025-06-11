@@ -58,6 +58,8 @@
     x-data='{
         search: "",
         clients: @json($clients),
+        page: 1,
+        pageSize: 5,
         get filtered() {
             const q = this.search.toLowerCase().trim();
             if (!q) {
@@ -67,6 +69,21 @@
                 c.name.toLowerCase().includes(q) ||
                 c.phone.includes(q)
             );
+        },
+        get totalPages() {
+            return Math.ceil(this.filtered.length / this.pageSize) || 1;
+        },
+        paginated() {
+            const start = (this.page - 1) * this.pageSize;
+            return this.filtered.slice(start, start + this.pageSize);
+        },
+        setPage(p) {
+            if (p < 1 || p > this.totalPages) return;
+            this.page = p;
+        },
+        setPageSize(size) {
+            this.pageSize = size;
+            this.page = 1;
         }
     }'
     class="space-y-4"
@@ -90,7 +107,7 @@
                     <table class="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
                         <thead class="text-xs font-semibold text-gray-900 uppercase bg-gray-100 dark:bg-gray-800 dark:text-gray-300">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-center">ID</th>
+                                <th scope="col" class="hidden px-6 py-3 text-center">ID</th>
                                 <th scope="col" class="px-6 py-3 text-center">Client Name</th>
                                 <th scope="col" class="px-6 py-3 text-center">Phone N°</th>
                                 <th scope="col" class="px-6 py-3 text-center">SOLD</th>
@@ -98,9 +115,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                <template x-for="client in filtered" :key="client.id">
+                <template x-for="client in paginated()" :key="client.id">
                     <tr class="divide-y">
-                        <td class="px-6 py-4 text-center" x-text="`#${client.id}`"></td>
+                        <td class="hidden px-6 py-4 text-center" x-text="`#${client.id}`"></td>
                         <td class="px-6 py-4 text-center">
 
                             <span class="
@@ -162,6 +179,84 @@
                 <tr x-show="filtered.length === 0">
                     <td colspan="5" class="p-4 text-center text-gray-500">No clients match your search.</td>
                 </tr>
+            </tbody>
+        </table>
+
+
+<!-- Pagination Controls -->
+<div class="flex items-center justify-between mt-4">
+    <!-- Empty div for spacing -->
+    <div class="w-32"></div>
+
+    <!-- Centered Pagination -->
+    <div class="flex justify-center">
+        <nav aria-label="Page navigation">
+            <ul class="inline-flex">
+                <!-- Prev Button -->
+                <li>
+                    <button @click="setPage(page-1)" :disabled="page === 1"
+                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
+                        <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+                        </svg>
+                    </button>
+                </li>
+
+                <!-- Page Numbers -->
+                <template x-for="p in totalPages" :key="p">
+                    <li>
+                        <button @click="setPage(p)"
+                            :class="{
+                                'text-blue-600 border-blue-300 bg-blue-50 font-bold text-lg': p === page,
+                                'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700': p !== page
+                            }"
+                            class="flex items-center justify-center h-8 px-3 border focus:z-10" x-text="p">
+                        </button>
+                    </li>
+                </template>
+
+                <!-- Next Button -->
+                <li>
+                    <button @click="setPage(page+1)" :disabled="page === totalPages"
+                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
+                        <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Rows Per Page Selector -->
+    <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">Rows per page</label>
+        <select x-model.number="pageSize" @change="setPageSize($event.target.value)"
+            class="px-4 py-1 text-sm border rounded">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+        </select>
+    </div>
+</div>
+
+<!-- Results Info -->
+<div class="flex justify-center w-full mt-2">
+    <span class="text-sm text-gray-700 dark:text-gray-400">
+        Showing <span class="font-semibold text-gray-900"
+            x-text="filtered.length === 0 ? 0 : ((page-1)*pageSize+1)"></span>
+        to <span class="font-semibold text-gray-900"
+            x-text="Math.min(page*pageSize, filtered.length)"></span>
+        of <span class="font-semibold text-gray-900" x-text="filtered.length"></span> Entries
+    </span>
+</div>
+
+
+
             </tbody>
                     </table>
                     <!-- If there are no clients -->
