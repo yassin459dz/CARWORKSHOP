@@ -22,5 +22,5 @@ class Client extends Component
         return view('livewire.clients.client', compact('clients'));
     }
     
-    
+
 }

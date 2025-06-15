@@ -7,10 +7,12 @@ use Livewire\Attributes\Rule;
 use Livewire\Attributes\On;
 use App\Models\clients;
 use App\Models\Factures;
+
 class ViewClient extends Component
 {
     public $editMode = false;
     public $deleteMode = false;
+    public $showModal = false; // Add this property
 
     public $originalData = [];
     public $name;
@@ -26,11 +28,16 @@ class ViewClient extends Component
     public $factureCount;
     public $clientId;
     public $clientName;
-    public $prefix = ''; // Add prefix property
+    public $prefix = '';
 
     protected $listeners = ['edit-mode' => 'edit'];
 
-    public function edit($id){
+    #[On('edit-mode')]
+    public function edit($id)
+    {
+        $this->reset(['editMode', 'deleteMode']); // Reset modes first
+
+        $this->clientId = $id;        // ← add this
         $this->client = clients::findOrFail($id);
         $this->name = $this->client->name;
         $this->phone = $this->client->phone;
@@ -41,6 +48,20 @@ class ViewClient extends Component
         $this->date = $this->client->created_at->format('d/F/Y');
         $this->updated = $this->client->updated_at;
         $this->factureCount = Factures::where('client_id', $this->client->id)->count();
+        
+        // Show the modal
+        $this->showModal = true;
+        
+        // Dispatch JavaScript to show modal
+        $this->dispatch('show-modal');
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->editMode = false;
+        $this->deleteMode = false;
+        $this->dispatch('modal-closed');
     }
 
     public function enableEditMode()
@@ -62,7 +83,6 @@ class ViewClient extends Component
             'name' => $this->name,
         ];
         $this->deleteMode = true;
-
     }
 
     public function deleteClient()
@@ -71,22 +91,19 @@ class ViewClient extends Component
             $this->dispatch('toast', 'No client selected.');
             return;
         }
-    
+
         $id = $this->client->id;
+        $name = $this->client->name;
         $this->client->delete();
-    
+
         $this->dispatch('clientDeleted');
         $this->deleteMode = false;
-        $this->name = $this->client->name;
-        session()->flash('status-delete', "{$this->name} has been deleted."); // Use string interpolation
-        return $this->redirect('/client', navigate: true); // Redirect after deletion
-
-    
-        // Emit custom event with deleted id
-       // $this->dispatch('client-deleted', id: $id);
+        $this->closeModal();
+        
+        session()->flash('status-delete', "{$name} has been deleted.");
+        return $this->redirect('/client', navigate: true);
     }
-    
-    
+
     public function saveEdit()
     {
         $this->validate([
@@ -97,6 +114,7 @@ class ViewClient extends Component
             'remark' => 'nullable|string',
             'sold' => 'nullable|numeric',
         ]);
+        
         $this->client->update([
             'name' => $this->name,
             'phone' => $this->phone,
@@ -105,17 +123,24 @@ class ViewClient extends Component
             'remark' => $this->remark,
             'sold' => $this->sold,
         ]);
+        
         $this->editMode = false;
         $this->updated = $this->client->fresh()->updated_at;
+        
+        session()->flash('status-updated', 'Client updated successfully.');
     }
 
     public function cancelEdit()
     {
-        foreach ($this->originalData as $key => $value) {
-            $this->$key = $value;
+        if ($this->editMode) {
+            foreach ($this->originalData as $key => $value) {
+                $this->$key = $value;
+            }
+            $this->editMode = false;
+        } else {
+            $this->closeModal();
         }
-        $this->editMode = false;
-        // Emit event to reset the CreateEditClient form
+        
         $this->dispatch('reset-create-client');
     }
 
@@ -123,7 +148,4 @@ class ViewClient extends Component
     {
         return view('livewire.clients.view-client');
     }
-
-
-
 }

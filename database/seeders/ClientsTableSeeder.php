@@ -18,15 +18,17 @@ class ClientsTableSeeder extends Seeder
         $faker = Faker::create();
 
         // Define phone prefixes and cities
-        $phonePrefixes = ['055', '066', '077'];
-        $cities = ['Alger', 'Paris', 'London', 'New York', 'Dubai', 'Cairo'];
+        $phonePrefixes = ['055', '066', '077', '088', '099'];
+        $cities = ['Alger', 'Paris', 'London', 'New York', 'Dubai', 'Cairo' ];
         $remarks = ['Good client', 'Doesn\'t want to stay long time', 'Frequent visitor', 'Prefers quick service', 'Loyal customer'];
 
         // Create a set to track unique phone numbers
         $phoneNumbers = [];
+        $clients = [];
 
         // Insert 10 dummy client records
-        for ($i = 0; $i < 10; $i++) {
+        
+        for ($i = 0; $i < 2000; $i++) {
             // Generate unique phone numbers
             do {
                 $phone = $phonePrefixes[array_rand($phonePrefixes)] . rand(1000000, 9999999);

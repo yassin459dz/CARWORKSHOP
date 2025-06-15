@@ -1,52 +1,65 @@
 <!-- Client View Modal -->
-<div wire:ignore.self id="modalEl" data-modal-target="modalEl" aria-hidden="true" data-modal-backdrop="static"
-     tabindex="-1" class="fixed inset-0 z-50 items-center justify-center hidden w-full h-screen max-h-screen p-2 backdrop-blur-sm">
+<div 
+    wire:ignore.self 
+    id="modalEl" 
+    aria-hidden="true" 
+    tabindex="-1" 
+    class="fixed inset-0 z-50 items-center justify-center hidden w-full h-screen max-h-screen p-2 backdrop-blur-sm bg-black/70"
+    x-data="{ show: @entangle('showModal') }"
+    x-show="show"
+    x-transition:enter="transition ease-out duration-150"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-50"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-50"
+    x-transition:leave-end="opacity-0"
+    @show-modal.window="show = true"
+    @hide-modal.window="show = false"
+    @keydown.escape.window="$wire.closeModal()"
+>
     @if($deleteMode)
     <div
-    x-data
-    x-show="true"
-    @keydown.escape.window="$wire.set('deleteMode', false)"
-    @click.outside="$wire.set('deleteMode', false)"
-    class="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-sm"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modalTitle"
->
-    <div class="relative w-full bg-white border border-gray-300 rounded-lg shadow-xl max-w-md max-h-full p-6">
-    <button wire:click="$set('deleteMode', false)" type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal-{{ $clientId }}">
+        x-show="true"
+        @click.outside="$wire.set('deleteMode', false)"
+        class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+    >
+        <div class="relative w-full bg-white border border-gray-300 rounded-lg shadow-xl max-w-md max-h-full p-6">
+            <button wire:click="$set('deleteMode', false)" type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                 </svg>
                 <span class="sr-only">Close modal</span>
             </button>
-    <div class="p-4 text-center md:p-5">
-        
-                <svg xmlns="http://www.w3.org/2000/svg" class="p-1 mx-auto text-red-700 w-14 h-14 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path  stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
+            <div class="p-4 text-center md:p-5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="p-1 mx-auto text-red-700 w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
                 <p class="mt-2 text-xl font-bold text-center text-gray-700">Deleting Client</p>
-                <p class="mt-2 text-lg text-center text-gray-500 dark:text-gray-400">Are you sure you want to delete <span class="font-medium text-red-600 truncate">{{ $name }}</span> ?</p>
+                <p class="mt-2 text-lg text-center text-gray-500 dark:text-gray-400">
+                    Are you sure you want to delete <span class="font-medium text-red-600 truncate">{{ $name }}</span>?
+                </p>
 
                 <div class="flex flex-col justify-center mt-4 space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-                <!-- Confirm Delete Button -->
-                <button wire:click="deleteClient({{ $clientId }})" data-modal-hide="popup-modal-{{ $clientId }}" type="button" class=" whitespace-nowrap text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
-                    Yes, I'm sure
-                </button>
+                    <!-- Confirm Delete Button -->
+                    <button wire:click="deleteClient" type="button" class="whitespace-nowrap text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                        Yes, I'm sure
+                    </button>
 
-                <!-- Cancel Button -->
-                <button wire:click="$set('deleteMode', false)" type="button" class="whitespace-nowrap py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
-                    No, cancel
-                </button>
+                    <!-- Cancel Button -->
+                    <button wire:click="$set('deleteMode', false)" type="button" class="whitespace-nowrap py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+                        No, cancel
+                    </button>
                 </div>
             </div>
-    </div>
-</div>
-
         </div>
+    </div>
     @endif
-     <div class="w-full max-w-3xl bg-white shadow-lg rounded-2xl dark:bg-slate-800">
+
+    <div class="w-full max-w-3xl bg-white shadow-lg rounded-2xl dark:bg-slate-800">
         <!-- Header -->
-         
         <div class="flex items-center justify-between px-6 py-3 bg-gradient-to-r rounded-t-2xl from-slate-800 to-slate-700">
             <div class="flex items-center space-x-3">
                 <div class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 ring-2 ring-white/20">
@@ -55,9 +68,7 @@
                     </svg>
                 </div>
                 <div>
-
-<h1 class="text-lg font-semibold text-white">{{ $name }}</h1>
-
+                    <h1 class="text-lg font-semibold text-white">{{ $name }}</h1>
                     <p class="text-xs text-slate-300">Full client profile and information</p>
                 </div>
             </div>
@@ -68,18 +79,17 @@
             @else
             <h3 class="text-lg font-semibold text-white">view</h3>
             @endif
-            <button data-modal-toggle="modalEl" wire:click="cancelEdit" type="button" class="p-1 transition-colors rounded-lg text-white/80 hover:text-red-600 bg-white/10 hover:bg-white/30">
+            <button wire:click="closeModal" type="button" class="p-1 transition-colors rounded-lg text-white/80 hover:text-red-600 bg-white/10 hover:bg-white/30">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
+
         <!-- Content -->
-         
         <div class="p-3 sm:p-6 lg:p-8">
             <div class="mb-3 bg-white border rounded-lg shadow-sm border-slate-200">
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-
                     <!-- Client Sold -->
                     <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50">
                         <h3 class="text-lg font-medium text-slate-700">Client Sold</h3>
@@ -111,6 +121,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 gap-3 mb-3 lg:grid-cols-2">
                 <!-- Contact Information Card -->
@@ -132,32 +143,30 @@
                             @endif
                         </div>
                         <div class="p-2 rounded-lg bg-blue-50">
-    <div class="text-sm font-medium text-center text-blue-600">Phone Numbers</div>
-
-    @if($editMode)
-        <div class="flex gap-x-2">
-            <div class="w-1/2">
-                <input type="text" wire:model.defer="phone"
-                    class="w-full px-2 py-1 mb-1 text-black border rounded border-slate-200"
-                    placeholder="Phone 1" />
-                @error('phone')
-                    <span class="text-xs text-red-600">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <div class="w-1/2">
-                <input type="text" wire:model.defer="phone2"
-                    class="w-full px-2 py-1 mb-1 text-black border rounded border-slate-200"
-                    placeholder="Phone 2 (optional)" />
-            </div>
-        </div>
-    @else
-        <div class="text-base font-semibold text-center text-blue-800">{{ $phone ?? 'Not provided' }}</div>
-        @if($phone2)
-            <div class="text-base font-semibold text-center text-blue-800">{{ $phone2 }}</div>
-        @endif
-    @endif
-</div>
+                            <div class="text-sm font-medium text-center text-blue-600">Phone Numbers</div>
+                            @if($editMode)
+                                <div class="flex gap-x-2">
+                                    <div class="w-1/2">
+                                        <input type="text" wire:model.defer="phone"
+                                            class="w-full px-2 py-1 mb-1 text-black border rounded border-slate-200"
+                                            placeholder="Phone 1" />
+                                        @error('phone')
+                                            <span class="text-xs text-red-600">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="w-1/2">
+                                        <input type="text" wire:model.defer="phone2"
+                                            class="w-full px-2 py-1 mb-1 text-black border rounded border-slate-200"
+                                            placeholder="Phone 2 (optional)" />
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-base font-semibold text-center text-blue-800">{{ $phone ?? 'Not provided' }}</div>
+                                @if($phone2)
+                                    <div class="text-base font-semibold text-center text-blue-800">{{ $phone2 }}</div>
+                                @endif
+                            @endif
+                        </div>
 
                         <div class="p-2 rounded-lg bg-green-50">
                             <div class="text-sm font-medium text-center text-green-600">Address</div>
