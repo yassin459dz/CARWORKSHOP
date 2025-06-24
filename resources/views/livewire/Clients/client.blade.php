@@ -171,117 +171,121 @@ x-data='{
 
 <!-- Pagination Controls -->
 <div class="flex items-center justify-between mt-4">
-    <!-- Empty div for spacing -->
-    <div class="w-32"></div>
+  <!-- Spacer -->
+  <div class="w-32"></div>
 
-    <!-- Centered Pagination -->
-    <div class="flex justify-center">
-        <nav aria-label="Page navigation">
-            <ul class="inline-flex">
-                <!-- Prev Button -->
-                <li>
-                    <button @click="setPage(page-1)" :disabled="page === 1"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
-                        <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
-                        </svg>
-                    </button>
-                </li>
+  <!-- Centered Pagination -->
+  <div class="flex justify-center">
+    <nav aria-label="Page navigation">
+      <ul class="inline-flex">
+        <!-- Prev Button -->
+        <li>
+          <button @click="setPage(page-1)" :disabled="page === 1"
+                  class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
+            <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4" />
+            </svg>
+          </button>
+        </li>
 
-                <!-- Page 1 (always show if not current) -->
-                <li x-show="page > 3">
-                    <button @click="setPage(1)"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                        1
-                    </button>
-                </li>
+        <!-- First Page (always) -->
+        <li>
+          <button @click="setPage(1)"
+                  :class="{
+                    'text-blue-600 bg-blue-50 font-bold': page === 1,
+                    'text-gray-500 bg-white': page !== 1
+                  }"
+                  class="flex items-center justify-center h-8 px-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+                  x-text="1">
+          </button>
+        </li>
 
-                <!-- Ellipsis after page 1 -->
-                <li x-show="page > 4">
-                    <span class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300">
-                        ...
-                    </span>
-                </li>
+        <!-- Leading Ellipsis -->
+        <li x-show="page > 4">
+          <span class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300">…</span>
+        </li>
 
-                <!-- Previous page (if not page 1 or 2) -->
-                <li x-show="page > 2">
-                    <button @click="setPage(page-1)"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        x-text="page-1">
-                    </button>
-                </li>
+        <!-- Prev Page Number -->
+        <li x-show="page > 2">
+          <button @click="setPage(page-1)"
+                  class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  x-text="page - 1">
+          </button>
+        </li>
 
-                <!-- Current Page -->
-                <li>
-                    <button
-                        class="flex items-center justify-center h-8 px-3 text-blue-600 border-blue-300 bg-blue-50 font-bold text-lg border focus:z-10"
-                        x-text="page">
-                    </button>
-                </li>
+        <!-- Current Page (only if not first or last) -->
+        <li x-show="page > 1 && page < totalPages">
+          <button class="flex items-center justify-center h-8 px-3 text-blue-600 bg-blue-50 font-bold border border-blue-300"
+                  x-text="page">
+          </button>
+        </li>
 
-                <!-- Next page (if not second to last or last) -->
-                <li x-show="page < totalPages - 1">
-                    <button @click="setPage(page+1)"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        x-text="page+1">
-                    </button>
-                </li>
+        <!-- Next Page Number -->
+        <li x-show="page < totalPages - 1">
+          <button @click="setPage(page+1)"
+                  class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  x-text="page + 1">
+          </button>
+        </li>
 
-                <!-- Ellipsis before last page -->
-                <li x-show="page < totalPages - 3">
-                    <span class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300">
-                        ...
-                    </span>
-                </li>
+        <!-- Trailing Ellipsis -->
+        <li x-show="page < totalPages - 3">
+          <span class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300">…</span>
+        </li>
 
-                <!-- Last page (always show if not current) -->
-                <li x-show="page < totalPages - 2">
-                    <button @click="setPage(totalPages)"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        x-text="totalPages">
-                    </button>
-                </li>
+        <!-- Last Page (always) -->
+        <li>
+          <button @click="setPage(totalPages)"
+                  :class="{
+                    'text-blue-600 bg-blue-50 font-bold': page === totalPages,
+                    'text-gray-500 bg-white': page !== totalPages
+                  }"
+                  class="flex items-center justify-center h-8 px-3 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+                  x-text="totalPages">
+          </button>
+        </li>
 
-                <!-- Next Button -->
-                <li>
-                    <button @click="setPage(page+1)" :disabled="page === totalPages"
-                        class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
-                        <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
-                        </svg>
-                    </button>
-                </li>
-            </ul>
-        </nav>
-    </div>
+        <!-- Next Button -->
+        <li>
+          <button @click="setPage(page+1)" :disabled="page === totalPages"
+                  class="flex items-center justify-center h-8 px-3 text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50">
+            <svg class="w-3.5 h-3.5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
 
-    <!-- Rows Per Page Selector -->
-    <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-600">Rows per page</label>
-        <select x-model.number="pageSize" @change="setPageSize($event.target.value)"
-            class="px-4 py-1 text-sm border rounded">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </select>
-    </div>
+  <!-- Rows Per Page Selector -->
+  <div class="flex items-center gap-2">
+    <label class="text-sm text-gray-600">Rows per page</label>
+    <select x-model.number="pageSize" @change="setPageSize($event.target.value)" class="px-4 py-1 text-sm border rounded">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
 </div>
 
-<!-- Results Info with Page Jump -->
+<!-- Results Info -->
 <div class="flex justify-center items-center gap-4 w-full mt-2">
-    <span class="text-sm text-gray-700 dark:text-gray-400">
-        Showing <span class="font-semibold text-gray-900" x-text="filtered.length === 0 ? 0 : ((page-1)*pageSize+1)"></span>
-        to <span class="font-semibold text-gray-900" x-text="Math.min(page*pageSize, filtered.length)"></span>
-        of <span class="font-semibold text-gray-900" x-text="filtered.length"></span> Entries
-    </span>
+  <span class="text-sm text-gray-700 dark:text-gray-400">
+    Showing <span class="font-semibold text-gray-900" x-text="filtered.length === 0 ? 0 : ((page-1)*pageSize+1)"></span>
+    to <span class="font-semibold text-gray-900" x-text="Math.min(page*pageSize, filtered.length)"></span>
+    of <span class="font-semibold text-gray-900" x-text="filtered.length"></span> Entries
+  </span>
 </div>
 
-                    <!-- If there are no clients -->
-                    @if ($clients->isEmpty())
-                        <p class="p-4 text-gray-500">No clients available.</p>
-                    @endif
+<!-- Empty-state -->
+@if ($clients->isEmpty())
+<p class="p-4 text-gray-500">No clients available.</p>
+@endif
+
+
                 </div>
             </div>
         </div>

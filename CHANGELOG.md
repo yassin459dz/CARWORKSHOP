@@ -1,6 +1,6 @@
 # CARWORKSHOP Changelog
 
-## What We Do
+## What We Do _(2025-06-15)_
 CARWORKSHOP is a comprehensive management solution for car workshops, providing tools to manage clients, track orders, and handle payments with clarity and efficiency. It is built with Laravel and Livewire, focusing on robust business logic and an intuitive user experience.
 
 All notable changes to this project will be documented in this file. This changelog follows best practices for tracking features, bug fixes, technical decisions, and known issues over the life of the project.
@@ -41,4 +41,5 @@ CARWORKSHOP is a car workshop management system built with Laravel and Livewire.
 
 ---
 
-> _Last updated: 2025-06-11_
+> _Last updated: 2025-06-15_
+FIX THE VIEW BUTTON DONT WORK AFTER SEARCH OR PAGINATION
