@@ -66,7 +66,6 @@
                     <table class="w-full text-sm text-gray-700 text-centre dark:text-gray-400">
                         <thead class="text-xs font-semibold text-gray-900 uppercase bg-gray-100 dark:bg-gray-800 dark:text-gray-300">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-center">ID</th>
                                 <th scope="col" class="px-6 py-3 text-center">Brand</th>
                                 <th scope="col" class="px-6 py-3 text-center">Model</th>
                                 <th scope="col" class="px-6 py-3 text-center">Action</th>
@@ -75,9 +74,6 @@
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($cars as $car)
                             <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800">
-                                <td scope="row" class="px-3 py-4 font-medium text-center dark:text-white">
-                                    <span class="inline-flex items-center justify-center text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">#{{ $car->id }}</span>
-                                </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="
                                     inline-flex items-center justify-center

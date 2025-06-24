@@ -54,10 +54,25 @@
     </div>
 <!-- Search Form -->
 <!-- Search Form -->
-<div class="relative flex max-w-md mx-auto mb-8">
-    <input wire:model.live="search" type="search" id="location-search"
-        class="block w-96 pl-4 pr-12 py-2.5 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
-        placeholder="Search Client or Phone or Matricule" required />
+<div x-data="{ search: @entangle('search').live }" class="relative max-w-md mx-auto">
+    <input
+        x-model="search"
+        type="text"
+        id="location-search"
+        class="block w-full pl-4 pr-12 py-1.5 text-lg rounded-lg border mb-4 text-lg"
+        placeholder="Search Client or MATRICULE"
+    />
+
+    <button
+        type="button"
+        x-show="search"
+        @click="search = ''"
+        class="absolute inset-y-0 right-2 flex items-center transition-colors rounded-lg hover:text-red-600"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+    </button>
 </div>
 
 
@@ -69,7 +84,6 @@
                     <table class="w-full text-sm text-left text-gray-500 rtl:text-right dark:text-gray-400">
                         <thead class="text-xs font-semibold text-gray-900 uppercase bg-gray-100 dark:bg-gray-800 dark:text-gray-300">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-center">ID</th>
                                 <th scope="col" class="px-6 py-3 text-center">Client</th>
                                 <th scope="col" class="px-6 py-3 text-center">Model</th>
                                 <th scope="col" class="px-6 py-3 text-center">Matricule</th>
@@ -80,10 +94,6 @@
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @foreach ($matricules as $matricule)
                             <tr class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800">
-                                <td class="px-3 py-4 font-medium text-center dark:text-white">
-                                    <span class="inline-flex items-center justify-center text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">#{{ $matricule->id }}</span>
-                                </span>
-                                    </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="
                                         inline-flex items-center justify-center
