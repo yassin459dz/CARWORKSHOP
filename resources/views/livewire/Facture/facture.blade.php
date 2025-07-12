@@ -67,17 +67,33 @@
                     <div class="mb-6 ">
 {{-------------------------------Client START----------------------------}}
 <div>
-<div class="mb-6 m-4">
+<div class="m-4 mb-6">
 {{-------------------------------Client START----------------------------}}
 <div>
-    <div class="relative max-w-sm ">
+    <div class="relative max-w-sm">
         <label for="client" class="block text-base font-medium text-gray-700">Client Name</label>
-        <div class="flex items-center space-x-0 mt-2">
-            <div x-data="{ search: '', open: false }" class="relative w-full">
+        <div class="flex items-center mt-2 space-x-0">
+            <div x-data="{
+                search: '',
+                open: false,
+                selectedClient: @entangle('selectedClient'),
+                init() {
+                    this.$watch('selectedClient', (value) => {
+                        if (value) {
+                            // Update search field with selected client name
+                            const clientOption = document.querySelector(`#clientSelect option[value='${value}']`);
+                            if (clientOption) {
+                                this.search = clientOption.innerText;
+                            }
+                        } else {
+                            this.search = '';
+                        }
+                    });
+                }
+            }" class="relative w-full">
                 <!-- Searchable Input -->
                 <input
-                id="NewClient"
-
+                    id="NewClient"
                     type="text"
                     x-model="search"
                     class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none"
@@ -85,7 +101,6 @@
                     @focus="open = true"
                     autocomplete="off"
                 />
-
 
                 <!-- Dropdown -->
                 <div class="absolute z-50 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg smooth-scroll"
@@ -98,7 +113,7 @@
                                     search = client.innerText;
                                     document.querySelector('#clientSelect').value = client.value;
                                     open = false;
-                                    $wire.set('selectedClient', client.value); // Explicit Livewire update
+                                    $wire.set('selectedClient', client.value);
                                 "
                             >
                                 <span x-text="client.innerText"></span>
@@ -109,7 +124,7 @@
 
                 <!-- Select Dropdown (Hidden) -->
                 <select id="clientSelect" wire:model.lazy="selectedClient" class="hidden">
-                    <option value="">Select Client</option>
+                    <option value=""></option>
                     @foreach ($allclients as $client)
                         <option value="{{ $client->id }}">{{ $client->name }}</option>
                     @endforeach
@@ -131,18 +146,38 @@
             </div>
         </div>
         @error('selectedClient')
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-    @enderror
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+        @enderror
+
         <!-- Car Dropdown (Dependent on Client) -->
-        <label for="carSelect" class="block mt-2 pb-2 text-base font-medium text-gray-700">CAR</label>
+<!-- Car Dropdown (Dependent on Client) -->
+<label for="carSelect" class="block pb-2 mt-2 text-base font-medium text-gray-700">CAR</label>
 <div class="flex items-center space-x-0">
-    <div x-data="{ 
-        carSearch: '', 
+    <div x-data="{
+        carSearch: '',
         carOpen: false,
         selectedClient: @entangle('selectedClient'),
+        selectedCar: @entangle('selectedCar'),
         init() {
             this.$watch('selectedClient', () => {
                 this.carSearch = '';
+                this.carOpen = false;
+            });
+            this.$watch('selectedCar', (value) => {
+                if (value) {
+                    // Update search field with selected car name
+                    const carOption = document.querySelector(`#carSelect option[value='${value}']`);
+                    if (carOption) {
+                        this.carSearch = carOption.innerText;
+                    }
+                } else {
+                    this.carSearch = '';
+                }
+            });
+
+            // Listen for auto-select events from Livewire
+            this.$wire.on('auto-select-car', (data) => {
+                this.carSearch = data[0].carName;
                 this.carOpen = false;
             });
         }
@@ -166,17 +201,17 @@
             <div class="overflow-hidden overflow-y-auto max-h-72 smooth-scroll">
                 @foreach ($groupedCars as $groupLabel => $cars)
                     @if($cars->count() > 0)
-                        @php 
-                            $groupClasses = $groupLabel == 'Owned Car' ? 'text-green-600' : 'text-red-600'; 
+                        @php
+                            $groupClasses = $groupLabel == 'Owned Car' ? 'text-green-600' : 'text-red-600';
                             $borderClass = $groupLabel == 'Owned Car' ? 'border-l-4 border-green-400' : 'border-l-4 border-red-400';
                         @endphp
-                        
+
                         <div x-show="carSearch === '' || {{ json_encode($cars->pluck('model')->toArray()) }}.some(model => model.toLowerCase().includes(carSearch.toLowerCase()))">
                             <!-- Group Header -->
                             <div class="px-4 py-2 text-xs font-semibold bg-gray-100 border-b {{ $groupClasses }}">
                                 {{ $groupLabel }}
                             </div>
-                            
+
                             <!-- Group Items -->
                             @foreach($cars as $car)
                                 <div
@@ -194,12 +229,12 @@
                         </div>
                     @endif
                 @endforeach
-                
+
                 <!-- No results message -->
                 @php
                     $allCarModels = collect($groupedCars)->flatten()->pluck('model')->toArray();
                 @endphp
-                <div x-show="carSearch !== '' && !{{ json_encode($allCarModels) }}.some(model => model.toLowerCase().includes(carSearch.toLowerCase()))" 
+                <div x-show="carSearch !== '' && !{{ json_encode($allCarModels) }}.some(model => model.toLowerCase().includes(carSearch.toLowerCase()))"
                      class="px-4 py-2 text-sm text-gray-500">
                     No cars found
                 </div>
@@ -208,7 +243,7 @@
 
         <!-- Hidden Select (for wire:model compatibility) -->
         <select id="carSelect" wire:model.live="selectedCar" wire:key="carSelect" class="hidden">
-            <option wire:key="car-select-default" value="">Select Car</option>
+            <option wire:key="car-select-default" value=""></option>
             @foreach ($groupedCars as $groupLabel => $cars)
                 <optgroup wire:key="group-{{ $groupLabel }}" label="{{ $groupLabel }}">
                     @foreach ($cars as $car)
@@ -229,33 +264,57 @@
         </svg>
     </button>
 </div>
-
-<!-- Validation Error Message -->
-@error('selectedCar')
-    <p class="text-sm text-red-600">{{ $message }}</p>
-@enderror
-
-
-
         <!-- Matricule Dropdown (Dependent on Car) -->
-
-        <div x-data="{
+<!-- Matricule Dropdown (Dependent on Car) -->
+<!-- Matricule Dropdown (Dependent on Car) -->
+<!-- Matricule Dropdown (Dependent on Car) -->
+<!-- Matricule Dropdown (Dependent on Car) -->
+<div x-data="{
     selectedMat: @entangle('selectedMat'),
     selectedCar: @entangle('selectedCar'),
     selectedClient: @entangle('selectedClient'),
     matSearch: '',
     matOpen: false,
     init() {
+        // Watch for car changes
         this.$watch('selectedCar', (val) => {
-            console.log('Car re-selected after matricule creation:', val);
+            console.log('Car changed to:', val);
             this.matSearch = '';
             this.matOpen = false;
         });
+
+        // Watch for matricule changes
+        this.$watch('selectedMat', (value) => {
+            console.log('Matricule changed to:', value);
+            if (value) {
+                // Update search field with selected matricule
+                const matOption = document.querySelector(`#matSelect option[value='${value}']`);
+                if (matOption) {
+                    this.matSearch = matOption.innerText;
+                    console.log('Updated matSearch to:', this.matSearch);
+                }
+            } else {
+                this.matSearch = '';
+            }
+        });
+
+        // Listen for auto-select events from Livewire
+        this.$wire.on('auto-select-matricule', (data) => {
+            console.log('Auto-select matricule event received:', data);
+            this.matSearch = data[0].matriculeName;
+            this.matOpen = false;
+        });
+
+        // Additional listener for matricule creation
+        this.$wire.on('matricule-created', (data) => {
+            console.log('Matricule created event received:', data);
+            this.matSearch = data[0].mat;
+            this.matOpen = false;
+        });
     }
-}"
- class="relative">
+}" class="relative">
     <div class="relative max-w-sm">
-        <label for="matSelect" class="block mt-2 pb-2 text-base font-medium text-gray-700">Matricule</label>
+        <label for="matSelect" class="block pb-2 mt-2 text-base font-medium text-gray-700">Matricule</label>
         <div class="flex items-center space-x-0">
             <div class="relative w-full">
                 <!-- Searchable Input -->
@@ -277,7 +336,7 @@
                     <div class="overflow-hidden overflow-y-auto max-h-72">
                         @foreach ($this->filteredMatricules as $mat)
                             <div
-                                class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white border-l-4 border-blue-400"
+                                class="flex items-center w-full px-4 py-2 text-sm text-gray-800 border-l-4 border-blue-400 cursor-pointer hover:bg-blue-600 hover:text-white"
                                 x-show="matSearch === '' || '{{ strtolower($mat->mat) }}'.includes(matSearch.toLowerCase())"
                                 @click="
                                     matSearch = '{{ $mat->mat }}';
@@ -289,12 +348,12 @@
                                 <span>{{ $mat->mat }}</span>
                             </div>
                         @endforeach
-                        
+
                         <!-- No results message -->
                         @php
                             $allMatricules = $this->filteredMatricules->pluck('mat')->toArray();
                         @endphp
-                        <div x-show="matSearch !== '' && !{{ json_encode($allMatricules) }}.some(mat => mat.toLowerCase().includes(matSearch.toLowerCase()))" 
+                        <div x-show="matSearch !== '' && !{{ json_encode($allMatricules) }}.some(mat => mat.toLowerCase().includes(matSearch.toLowerCase()))"
                              class="px-4 py-2 text-sm text-gray-700">
                             No Matricules Found
                         </div>
@@ -307,7 +366,7 @@
                     wire:model.live="selectedMat"
                     class="hidden"
                 >
-                    <option value="">Select Matricule</option>
+                    <option value=""></option>
                     @foreach ($this->filteredMatricules as $mat)
                         <option value="{{ $mat->id }}">{{ $mat->mat }}</option>
                     @endforeach
@@ -320,36 +379,26 @@
                 class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
                 @click="
                     if (selectedClient && selectedCar && matSearch && matSearch.trim() !== '') {
-                        // Store the selected car temporarily
                         const currentCar = selectedCar;
                         const newMatValue = matSearch.trim();
-                        
+
                         $wire.createMatricule(newMatValue).then(() => {
-                            // Keep the created matricule value in the search field
                             matSearch = newMatValue;
                             matOpen = false;
-                            
-                            // Explicitly reset the selected car
                             $wire.set('selectedCar', currentCar);
-                            setTimeout(() => {
-                                // Dispatch custom event for car restoration after short delay
-                                window.dispatchEvent(new CustomEvent('car-restored', {
-                                    detail: { id: currentCar }
-                                }));
-                            }, 50);
                         });
                     }
                 "
                 :disabled="!selectedClient || !selectedCar || !matSearch || matSearch.trim() === ''"
                 title="Create New Matricule"
             >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
-                <path fill="currentColor" d="M3 5a2 2 0 0 1 2-2h1v3.5A1.5 1.5 0 0 0 7.5 8h4A1.5 1.5 0 0 0 13 6.5V3h.379a2 2 0 0 1 1.414.586l1.621 1.621A2 2 0 0 1 17 6.621V15a2 2 0 0 1-2 2v-5.5a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 5 11.5V17a2 2 0 0 1-2-2zm9-2H7v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5zm2 8.5V17H6v-5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5" />
-            </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
+                    <path fill="currentColor" d="M3 5a2 2 0 0 1 2-2h1v3.5A1.5 1.5 0 0 0 7.5 8h4A1.5 1.5 0 0 0 13 6.5V3h.379a2 2 0 0 1 1.414.586l1.621 1.621A2 2 0 0 1 17 6.621V15a2 2 0 0 1-2 2v-5.5a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 5 11.5V17a2 2 0 0 1-2-2zm9-2H7v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5zm2 8.5V17H6v-5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5" />
+                </svg>
             </button>
         </div>
     </div>
-    
+
     <!-- Validation Error Message -->
     @error('selectedMat')
         <p class="text-sm text-red-600">{{ $message }}</p>
@@ -380,7 +429,7 @@
                     @endif
                     <!-- Vehicle Details (Livewire Step 2) -->
                     @if($currentstep === 2)
-                    <div class="space-y-4 m-4">
+                    <div class="m-4 space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">KM</label>
                             <input
@@ -416,7 +465,6 @@
             Client will make partial/full payment now
         </label>
     </div>
-@endif
 <!-- Payment Modal -->
 <div
     x-show="paymentModalOpen"
@@ -512,7 +560,6 @@
 <!-- End Payment Modal -->
 
 <!-- Order Items (Livewire Step 3) -->
-                    @if($currentstep === 3)
 
                     <div class="px-6">
                         <!-- Entire Component Content Goes Here -->
@@ -832,7 +879,8 @@
                             <button
                                 wire:click="incrementstep"
                                 type="button"
-                                class="px-4 py-2 font-medium text-white transition-transform duration-100 ease-in-out bg-blue-700 rounded-lg hover:bg-blue-800 active:scale-90 "
+                                class="px-4 py-2 font-medium text-white transition-transform duration-100 ease-in-out bg-blue-700 rounded-lg hover:bg-blue-800 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
+ "
                                 >
                                 Next
                             </button>
@@ -1189,4 +1237,5 @@ applyOverriddenTotal() {
             });
         };
     })();
+
 </script>

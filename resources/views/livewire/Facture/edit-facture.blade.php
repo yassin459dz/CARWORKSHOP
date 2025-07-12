@@ -39,7 +39,7 @@ class="mx-auto max-w-7xl"
                         </template>
                     </div> --}}
                     {{-- THE OLD DESIGN --}}
-                    <div class="grid max-h-screen grid-cols-1 gap-4 p-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 no-scrollbar">
+                    <div class="grid max-h-screen grid-cols-1 gap-4 p-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3 smooth-scroll">
                         <template x-for="product in filteredProducts" :key="product.id">
                             <div
                                 @click="$wire.currentstep === 3 ? addToOrder(product) : null"
@@ -70,166 +70,295 @@ class="mx-auto max-w-7xl"
                     <!-- Client Selection (Livewire Step 1) -->
                     @if($currentstep === 1)
                     <div class="mb-6">
-{{-------------------------------Client START----------------------------}}
+                    {{-------------------------------Client START----------------------------}}
 <div class="relative max-w-sm">
-    <div
-        x-data="{
+<div class="relative max-w-sm">
+    <label for="client" class="block text-base font-medium text-gray-700">Client Name</label>
+    <div class="flex items-center space-x-0 mt-2">
+        <div x-data="{ 
+            search: @js($search), 
             open: false,
-            search: @js($search),
+            selectedClient: @entangle('client_id'),
             allClients: @js($allclients),
-            setClientName() {
-                this.search = @this.allclients.find(c => c.id === @this.client_id)?.name || '';
-            },
-        }"
-        x-init="setClientName()"
-        @click.away="open = false"
-        class="relative"
-    >
-    <div>
-        <div>
-            <button
-            {{-- @click="$dispatch('lite-mode')" --}}
-            @click="open = false;
-            $dispatch('lite-mode')"
+            init() {
+                this.$watch('selectedClient', (value) => {
+                    if (value) {
+                        // Update search field with selected client name
+                        const client = this.allClients.find(c => c.id == value);
+                        if (client) {
+                            this.search = client.name;
+                        }
+                    } else {
+                        this.search = '';
+                    }
+                });
+            }
+        }" class="relative w-full">
+            <!-- Searchable Input -->
+            <input
+                id="NewClient"
+                type="text"
+                x-model="search"
+                class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none"
+                placeholder="Client"
+                @focus="open = true"
+                @input.debounce.100ms="open = true"
+                autocomplete="off"
+            />
 
-            data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button">
-                Create Client
-                {{-- <button @click="$dispatch('open-modal', search)" --}}
-
-            </button>
-        </div>
-        <div wire:ignore>
-            <livewire:create-edit-client />
-        </div>
-    </div>
-    <!-- Input Field -->
-        <label for="Client" class="block text-sm font-medium text-gray-700">Client Name</label>
-        <input
-            id="NewClient"
-            type="text"
-            class="block w-full p-2 text-sm text-gray-800 placeholder-gray-400 placeholder-gray-500 bg-white border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500"
-            x-model="search"
-            placeholder="Client"
-            @focus="open = true"
-            @input.debounce.100ms="
-                open = true;
-                $wire.set('search', search);
-            "
-        />
-        <div class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
-             x-show="open && search.length > 0">
-            <div class="overflow-hidden overflow-y-auto max-h-72">
-                <template x-for="client in allClients" :key="client.id">
-                    <div
-                        class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
-                        @click="
-                            $wire.set('client_id', client.id);
-                            search = client.name;
-                            open = false;
-                        "
-                        x-show="client.name.toLowerCase().includes(search.toLowerCase())">
-                        <span x-text="client.name"></span>
-                    </div>
-                </template>
+            <!-- Dropdown -->
+            <div class="absolute z-50 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg smooth-scroll"
+                 x-show="open && search.length > 0"
+                 @click.away="open = false">
+                <div class="overflow-hidden overflow-y-auto max-h-72">
+                    <template x-for="client in allClients.filter(c => c.name.toLowerCase().includes(search.toLowerCase()))" :key="client.id">
+                        <div
+                            class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
+                            @click="
+                                search = client.name;
+                                selectedClient = client.id;
+                                open = false;
+                                // Dispatch event to reset car and matricule
+                                $dispatch('client-changed', { clientId: client.id });
+                            "
+                        >
+                            <span x-text="client.name"></span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
-        @error('client_id')
-            <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-        @enderror
+
+        <!-- Button on the right side -->
+        <div>
+            <button data-modal-target="authentication-modal" data-modal-toggle="authentication-modal" type="button"
+                    class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
+                    @click="console.log('Authentication modal triggered')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+            </button>
+            <div wire:ignore>
+                    <livewire:create-edit-client />
+                </div>
+        </div>
     </div>
+    @error('client_id')
+        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+    @enderror
 </div>
-                    {{-------------------------------Client END----------------------------}}
+
+{{-------------------------------Client END----------------------------}}
 
 
 
 {{-------------------------------CAR START----------------------------}}
-<div class="relative max-w-sm">
-    <div
-        x-data="{
-            open: false,
-            search: @js($search),
-            allCars: @js($allcars), // Bind the filtered cars list
-            setCarName() {
-                this.search = this.allCars.find(car => car.id === @js($car_id))?.model || '';
-            },
-        }"
-        x-init="setCarName()"
-        @click.away="open = false"
-        class="relative"
-    >
-        <!-- Create Car Button -->
-        <div class="mb-2">
-            <button
-                @click="open = false; $dispatch('lite-mode')"
-                data-modal-target="authentication-modal"
-                data-modal-toggle="authentication-modal"
-                class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                type="button"
-            >
-                Create Car
-            </button>
-            <div wire:ignore>
-                <livewire:create-edit-client />
-            </div>
-        </div>
-
-        <!-- Input Field -->
-        <label for="NewCar" class="block text-sm font-medium text-gray-700">Car Model</label>
+<label for="carSelect" class="block mt-2 pb-2 text-base font-medium text-gray-700">CAR</label>
+<div class="flex items-center space-x-0">
+    <div x-data="{ 
+        carSearch: @js($facture && $facture->car ? $facture->car->model : ''), 
+        carOpen: false,
+        selectedClient: @entangle('client_id'),
+        selectedCar: @entangle('car_id'),
+        allCars: @js($allcars),
+        allMatricules: @js($allmat),
+        filteredCars: [],
+        init() {
+            // Initialize filtered cars
+            this.updateFilteredCars();
+            
+            // Watch for client changes
+            this.$watch('selectedClient', (value) => {
+                this.updateFilteredCars();
+                // Reset car selection when client changes (except when editing existing facture)
+                if (!@js($factureId)) {
+                    this.carSearch = '';
+                    this.carOpen = false;
+                }
+            });
+            
+            // Watch for car changes (including auto-selection from Livewire)
+            this.$watch('selectedCar', (value) => {
+                if (value) {
+                    // Update search field with selected car name
+                    const car = this.allCars.find(c => c.id == value);
+                    if (car) {
+                        this.carSearch = car.model;
+                    }
+                    // Trigger matricule filtering
+                    this.$dispatch('car-changed', { carId: value, clientId: this.selectedClient });
+                } else {
+                    this.carSearch = '';
+                    this.$dispatch('car-changed', { carId: null, clientId: this.selectedClient });
+                }
+            });
+        },
+        updateFilteredCars() {
+            if (!this.selectedClient) {
+                this.filteredCars = [];
+                return;
+            }
+            
+            // Get owned car IDs for the selected client
+            const ownedCarIds = this.allMatricules
+                .filter(mat => mat.client_id == this.selectedClient)
+                .map(mat => mat.car_id);
+            
+            // Separate owned and non-owned cars
+            const ownedCars = this.allCars.filter(car => ownedCarIds.includes(car.id));
+            const nonOwnedCars = this.allCars.filter(car => !ownedCarIds.includes(car.id));
+            
+            this.filteredCars = [
+                { group: 'Owned Car', cars: ownedCars, groupClass: 'text-green-600', borderClass: 'border-l-4 border-green-400' },
+                { group: 'Non Owned Car', cars: nonOwnedCars, groupClass: 'text-red-600', borderClass: 'border-l-4 border-red-400' }
+            ];
+        }
+    }" 
+    @client-changed.window="
+        // Reset car selection when client changes
+        selectedCar = null;
+        carSearch = '';
+        carOpen = false;
+        updateFilteredCars();
+    "
+    class="relative w-full">
+        <!-- Searchable Input -->
         <input
-            id="NewCar"
+            id="carSearchInput"
             type="text"
-            class="block w-full p-2 text-sm text-gray-800 placeholder-gray-400 placeholder-gray-500 bg-white border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500"
-            x-model="search"
-            @focus="open = true"
-            @input.debounce.100ms="
-                open = true;
-                $wire.set('search', search);
-            "
+            x-model="carSearch"
+            class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none"
+            placeholder="Search Car"
+            @focus="carOpen = true"
+            @click="carOpen = true"
+            @input.debounce.100ms="carOpen = true"
+            @click.away="carOpen = false"
+            :disabled="!selectedClient"
+            autocomplete="off"
         />
 
-        <!-- Dropdown List -->
-        <div
-            class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
-            x-show="open && search.length > 0"
-            x-transition
-        >
-            <div class="overflow-hidden overflow-y-auto max-h-72">
-                <template x-for="car in allCars" :key="car.id">
-                    <div
-                        class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
-                        @click="
-                            $wire.set('car_id', car.id);
-                            search = car.model;
-                            open = false;
-                        "
-                        x-show="car.model.toLowerCase().includes(search.toLowerCase())"
-                    >
-                        <span x-text="car.model"></span>
+        <!-- Dropdown -->
+        <div class="absolute z-40 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+             x-show="carOpen && selectedClient && filteredCars.length > 0">
+            <div class="overflow-hidden overflow-y-auto max-h-72 smooth-scroll">
+                <template x-for="group in filteredCars" :key="group.group">
+                    <div x-show="group.cars.length > 0">
+                        <!-- Group Header -->
+                        <div class="px-4 py-2 text-xs font-semibold bg-gray-100 border-b" :class="group.groupClass" x-text="group.group"></div>
+                        
+                        <!-- Group Items -->
+                        <template x-for="car in group.cars" :key="car.id">
+                            <div
+                                class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
+                                :class="group.borderClass"
+                                x-show="carSearch === '' || car.model.toLowerCase().includes(carSearch.toLowerCase())"
+                                @click="
+                                    carSearch = car.model;
+                                    carOpen = false;
+                                    selectedCar = car.id;
+                                "
+                            >
+                                <span x-text="car.model"></span>
+                            </div>
+                        </template>
                     </div>
                 </template>
+                
+                <!-- No results message -->
+                <div x-show="carSearch !== '' && !filteredCars.some(group => group.cars.some(car => car.model.toLowerCase().includes(carSearch.toLowerCase())))" 
+                     class="px-4 py-2 text-sm text-gray-500">
+                    No cars found
+                </div>
             </div>
         </div>
 
-        <!-- Error Message -->
-        @error('car_id')
-            <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-        @enderror
+        <!-- Hidden Select (for wire:model compatibility) -->
+        <select id="carSelect" wire:model.live="car_id" wire:key="carSelect" class="hidden">
+            <option wire:key="car-select-default" value=""></option>
+            @foreach ($groupedCars as $groupLabel => $cars)
+                <optgroup wire:key="group-{{ $groupLabel }}" label="{{ $groupLabel }}">
+                    @foreach ($cars as $car)
+                        <option wire:key="car-option-{{ $car->id }}" value="{{ $car->id }}">{{ $car->model }}</option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
     </div>
-</div>
 
+    <!-- Create Car Button -->
+    <button
+        type="button"
+        @click="console.log('Car button clicked')"
+        data-modal-target="authentication-modal"
+        data-modal-toggle="authentication-modal"
+        class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    </button>
+</div>
 {{-------------------------------CAR END----------------------------}}
-{{-------------------------------Matriquelle Start----------------------------}}
+
+{{-------------------------------Matricule START----------------------------}}
 <div class="relative max-w-sm">
     <div
         x-data="{
             open: false,
             search: @js($mat),
             allMat: @js($allmat),
-            setMatName() {
-                this.search = this.allMat.find(m => m.id === @js($mat_id))?.mat || '';
+            filteredMatricules: [],
+            selectedClient: @entangle('client_id'),
+            selectedCar: @entangle('car_id'),
+            selectedMatricule: @entangle('mat_id'),
+            matField: @entangle('mat'),
+            init() {
+                this.updateFilteredMatricules();
+                
+                // Watch for matricule changes (including auto-selection from Livewire)
+                this.$watch('selectedMatricule', (value) => {
+                    if (value) {
+                        const mat = this.allMat.find(m => m.id == value);
+                        if (mat) {
+                            this.search = mat.mat;
+                        }
+                    } else {
+                        this.search = '';
+                    }
+                });
+                
+                // Watch for mat field changes from Livewire
+                this.$watch('matField', (value) => {
+                    if (value !== this.search) {
+                        this.search = value;
+                    }
+                });
             },
+            updateFilteredMatricules() {
+                if (!this.selectedClient || !this.selectedCar) {
+                    this.filteredMatricules = [];
+                    return;
+                }
+                
+                this.filteredMatricules = this.allMat.filter(mat => 
+                    mat.client_id == this.selectedClient && mat.car_id == this.selectedCar
+                );
+            }
         }"
-        x-init="setMatName()"
+        @client-changed.window="
+            // Reset matricule selection when client changes
+            selectedMatricule = null;
+            search = '';
+            open = false;
+            updateFilteredMatricules();
+        "
+        @car-changed.window="
+            // Reset matricule selection when car changes
+            selectedMatricule = null;
+            search = '';
+            open = false;
+            updateFilteredMatricules();
+        "
         @click.away="open = false"
         class="relative"
     >
@@ -237,39 +366,55 @@ class="mx-auto max-w-7xl"
         <input
             id="NewMat"
             type="text"
-            class="block w-full p-2 text-sm text-gray-800 placeholder-gray-400 placeholder-gray-500 bg-white border-gray-200 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+            class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none "
             x-model="search"
             @focus="open = true"
+            @click="open = true"
             @input.debounce.100ms="
                 open = true;
                 $wire.set('mat', search);
             "
+            :disabled="!selectedClient || !selectedCar"
+            placeholder="Select client and car first"
+            autocomplete="off"
         />
-        <div class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-800 dark:border-neutral-700"
-             x-show="open && search.length > 0">
+        
+        <div class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg dark:bg-neutral-800 dark:border-neutral-700 smooth-scroll"
+             x-show="open && selectedClient && selectedCar && filteredMatricules.length > 0">
             <div class="overflow-hidden overflow-y-auto max-h-72">
-                <template x-for="matricule in allMat" :key="matricule.id">
-                    <div
-                        class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
-                        @click="
-                            $wire.set('mat_id', matricule.id);
-                            search = matricule.mat;
-                            open = false;
-                        "
-                        x-show="matricule.mat.toLowerCase().includes(search.toLowerCase())">
+                <template x-for="matricule in filteredMatricules.filter(m => search === '' || m.mat.toLowerCase().includes(search.toLowerCase()))" :key="matricule.id">
+                <div
+    class="flex items-center px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white"
+    @mousedown.prevent="
+        // use mousedown so it fires *before* the input blurs
+        selectedMatricule = matricule.id;
+        search = matricule.mat;
+        open = false;
+    "
+  >
                         <span x-text="matricule.mat"></span>
                     </div>
                 </template>
             </div>
         </div>
+        
+        
+        <!-- Show message when no matricules available -->
+        <div x-show="open && selectedClient && selectedCar && filteredMatricules.length === 0" 
+             class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg">
+            <div class="px-4 py-2 text-sm text-gray-500">
+                No matricules found for this client and car combination
+            </div>
+        </div>
+        
         @error('mat_id')
             <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
         @enderror
     </div>
 </div>
+{{-------------------------------Matricule END----------------------------}}
 
-{{-------------------------------Matriquelle END----------------------------}}
-                    @endif
+@endif
 
 
 
@@ -301,27 +446,154 @@ class="mx-auto max-w-7xl"
 
                     <!-- Order Items (Livewire Step 3) -->
                     @if($currentstep === 3)
+<!-- Payment Modal -->
+<div
+    x-show="paymentModalOpen"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 transform scale-90"
+    x-transition:enter-end="opacity-100 transform scale-100"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100 transform scale-100"
+    x-transition:leave-end="opacity-0 transform scale-90"
+    class="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-gray-800 bg-opacity-60"
+    x-cloak
+>
+    <div class="relative w-full max-w-md px-4 py-8 mx-auto bg-white rounded-lg shadow-lg">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-200">
+            <h3 class="text-xl font-semibold text-gray-900">
+                Process Payment
+            </h3>
+            <button
+                @click="paymentModalOpen = false"
+                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="space-y-6">
+            <!-- Current Facture Info -->
+            <div class="p-4 mb-4 rounded-lg bg-blue-50">
+                <p class="mb-1 text-sm text-gray-700">
+                    <span class="font-medium">Facture Total:</span> 
+                    <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
+                </p>
+                
+                @if(isset($facture) && $facture->exists)
+                    <!-- This is an UPDATE scenario -->
+                    <p class="text-sm text-orange-700">
+                        <span class="font-medium">Current Paid Amount:</span>
+                        <span class="font-semibold">{{ number_format($facture->paid_value ?? 0, 2) }} DA</span>
+                    </p>
+                    <p class="text-sm text-red-700">
+                        <span class="font-medium">Current Remaining:</span>
+                        <span class="font-semibold">{{ number_format(max(0, ($facture->total_amount ?? 0) - ($facture->paid_value ?? 0)), 2) }} DA</span>
+                    </p>
+                @else
+                    <!-- This is a CREATE scenario -->
+                    @if(isset($clientSold) && $clientSold !== null && $clientSold > 0)
+                        <p class="text-sm text-green-700">
+                            <span class="font-medium">Client Previous Sold:</span>
+                            <span class="font-semibold">{{ number_format($clientSold, 2) }} DA</span>
+                        </p>
+                    @endif
+                @endif
+            </div>
+
+            <!-- Total Amount Due -->
+            <div class="flex items-center justify-between p-4 mb-4 rounded-lg bg-blue-50">
+                <span class="text-sm font-medium text-gray-900">Total Amount Due</span>
+                <span class="text-lg font-semibold text-gray-900">
+                    @if(isset($facture) && $facture->exists)
+                        <!-- UPDATE: Only show this facture's total -->
+                        <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
+                    @else
+                        <!-- CREATE: Show facture total + previous sold -->
+                        @if(isset($clientSold) && $clientSold !== null && $clientSold > 0)
+                            <span x-text="(calculateTotal() + {{ $clientSold }}).toFixed(2) + ' DA'"></span>
+                        @else
+                            <span x-text="calculateTotal().toFixed(2) + ' DA'"></span>
+                        @endif
+                    @endif
+                </span>
+            </div>
+
+            <!-- Payment Input -->
+            <div class="mb-4">
+                <label for="clientPaid" class="block mb-2 text-sm font-medium text-gray-900">
+                    Payment Amount (DA)
+                </label>
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    @if(isset($facture) && $facture->exists)
+                        :max="calculateTotal()"
+                        x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = {{ $facture->paid_value ?? 0 }} })"
+                    @else
+                        :max="calculateTotal() + @js((float)($clientSold ?? 0))"
+                        x-init="$watch('paymentModalOpen', value => { if(value) clientPaid = calculateTotal() + @js((float)($clientSold ?? 0)) })"
+                    @endif
+                    x-model.number="clientPaid"
+                    id="clientPaid"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                />
+            </div>
+
+            <!-- New Remaining Amount -->
+            <div class="flex items-center justify-between p-4 mt-2 rounded-lg bg-yellow-50">
+                <span class="text-sm font-medium text-yellow-700">Remaining After Payment:</span>
+                <span class="text-lg font-semibold text-yellow-700">
+                    @if(isset($facture) && $facture->exists)
+                        <!-- UPDATE: Only calculate for this facture -->
+                        <span x-text="Math.max(0, calculateTotal() - (clientPaid || 0)).toFixed(2) + ' DA'"></span>
+                    @else
+                        <!-- CREATE: Calculate with previous sold -->
+                        @if(isset($clientSold) && $clientSold !== null && $clientSold > 0)
+                            <span x-text="Math.max(0, (calculateTotal() + {{ $clientSold }}) - (clientPaid || 0)).toFixed(2) + ' DA'"></span>
+                        @else
+                            <span x-text="Math.max(0, calculateTotal() - (clientPaid || 0)).toFixed(2) + ' DA'"></span>
+                        @endif
+                    @endif
+                </span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-2">
+                <button
+                    @click="paymentModalOpen = false"
+                    class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-100"
+                >
+                    Cancel
+                </button>
+                <button
+                    @click="paymentModalOpen = false; $wire.set('clientPaid', clientPaid); prepareSubmission();"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300"
+                >
+                    Confirm Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Payment Modal -->
                     <div>
                         <!-- Entire Component Content Goes Here -->
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-2xl font-bold text-gray-800">Current Order</h2>
                             <button
-                            class="px-4 py-2 text-red-500 transition-transform duration-100 ease-in-out bg-red-200 rounded-md hover:bg-red-600 hover:text-white active:scale-90"
+                            class="px-4 py-2 font-semibold text-red-500 transition-transform duration-100 ease-in-out bg-red-200 rounded-md hover:bg-red-600 hover:text-white active:scale-90 "
                             @click="clearOrder">
                                 Clear All
                             </button>
                         </div>
                         <div>
                             <!-- Order Items -->
-                            {{-- <template x-for="(item, index) in orderItems" :key="index">
-                                <div>
-                                    <span x-text="item.name"></span>
-                                    <span x-text="item.description"></span>
-                                    <span x-text="item.quantity"></span>
-                                    <span x-text="item.price"></span>
-                                </div>
-                            </template> --}}
-                            <div class="space-y-4 max-h-[40vh] overflow-y-scroll no-scrollbar">
+                            <div class="space-y-4 max-h-[40vh] overflow-y-scroll smooth-scroll">
                                 <template x-for="(item, index) in orderItems" :key="index">
                                     <div
                                         x-data="{ isDragging: false }"
@@ -595,8 +867,11 @@ class="mx-auto max-w-7xl"
                                     @click="validateOrder">
                                     Validate Order
                                 </button> --}}
-                                <button @click="prepareSubmission" class="w-full py-3 mt-4 font-semibold text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg active:scale-90 hover:bg-blue-700">
-                                    <span x-text="isSubmitted ? 'Reset' : 'Validate Order'"></span>
+                                <button
+                                    class="w-full py-3 mt-4 font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
+                                type="button"
+                                    @click="validateOrder">
+                                    Validate Order
                                 </button>
                             </div>
                         </div>
@@ -654,19 +929,26 @@ class="mx-auto max-w-7xl"
                         wire:click="decrementstep"
                         type="button"
                         class="px-4 py-2 text-white transition-transform duration-100 ease-in-out bg-gray-400 rounded-md hover:bg-gray-500 active:scale-90"
-                    >
+                                    
+                        >
                         Back
                     </button>
                         @endif
 
                         @if($currentstep < $totalstep)
                         <button
-                        wire:click="incrementstep"
-                        type="button"
-                        class="px-4 py-2 font-medium text-white transition-transform duration-100 ease-in-out bg-blue-700 rounded-lg hover:bg-blue-800 active:scale-90 "
-                        >
-                        Next
-                    </button>
+    type="button"
+    wire:click="incrementstep"
+    :disabled="
+      <!-- for step 1, disable until client selected -->
+      ($wire.currentstep === 1 && !$wire.client_id) ||
+      <!-- for step 2, disable until car & matricule selected -->
+      ($wire.currentstep === 2 && (!$wire.car_id || !$wire.mat_id))
+    "
+    class="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+>
+    Next
+</button>
                         @endif
 
                         @if($currentstep === $totalstep)
@@ -685,6 +967,28 @@ class="mx-auto max-w-7xl"
             </div>
         </div>
     </form>
+    <style>
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* for momentum on mobile */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.smooth-scroll::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+.smooth-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Tailwind slate-300 */
+    border-radius: 8px;
+}
+.smooth-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Tailwind slate-400 */
+}
+.smooth-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+</style>
 </div>
 
 <script>
@@ -745,15 +1049,30 @@ applyOverriddenTotal() {
         },
 
         addToOrder(product) {
-    const productId = product.id ?? product.product_id;
-
-    const existingItem = this.orderItems.find(item =>
-        (item.id ?? item.product_id) === productId
-    );
+    // Get the product ID with more comprehensive checks
+    const productId = product.id ?? product.product_id ?? product.item_id;
+    
+    // Also check for name matching as a fallback (useful for edit contexts)
+    const existingItem = this.orderItems.find(item => {
+        // First try ID matching
+        const itemId = item.id ?? item.product_id ?? item.item_id;
+        if (itemId && productId && itemId === productId) {
+            return true;
+        }
+        
+        // Fallback to name matching (case-insensitive)
+        if (item.name && product.name) {
+            return item.name.toLowerCase().trim() === product.name.toLowerCase().trim();
+        }
+        
+        return false;
+    });
 
     if (existingItem) {
+        // Increment quantity if item already exists
         existingItem.quantity++;
     } else {
+        // Add new item to order
         this.orderItems.push({
             ...product,
             id: productId, // Normalize ID
@@ -934,9 +1253,66 @@ totalPrice() {
     }, 0);
 },
 
-        validateOrder() {
-            alert('Order validated! Total: ' + this.calculateTotal().toFixed(2) + ' DA');
+    validateOrder() {
+            // Always open payment modal regardless of client sold status or checkbox
+            this.paymentModalOpen = true;
+            return;
         }
     }
 }
+    // --- Payment Modal Extension ---
+    (function() {
+        const originalOrderApp = window.orderApp;
+        window.orderApp = function(...args) {
+            const base = originalOrderApp(...args);
+            return Object.assign(base, {
+                paymentModalOpen: false,
+                paymentAmount: 0,
+                clientPaid: 0,
+                willMakePayment: false,
+                remainingAmount: 0,
+                calculateRemaining() {
+                    this.remainingAmount = Math.max(0, this.calculateTotal() - this.clientPaid);
+                }
+            });
+        };
+    })();
+    document.addEventListener('DOMContentLoaded', function() {
+  // ——— Client input “clear” ———
+  const clientInput = document.getElementById('NewClient');
+  clientInput.addEventListener('input', function() {
+    if (this.value === '') {
+      // Clear Livewire’s client_id
+      @this.set('client_id', null);
+      // Tell the car & matricule selectors to reset
+      window.dispatchEvent(new CustomEvent('client-changed', {
+        detail: { clientId: null }
+      }));
+    }
+  });
+
+  // ——— Car input “clear” ———
+  const carInput = document.getElementById('carSearchInput');
+  carInput.addEventListener('input', function() {
+    if (this.value === '') {
+      @this.set('car_id', null);
+      window.dispatchEvent(new CustomEvent('car-changed', {
+        detail: { carId: null, clientId: @this.get('client_id') }
+      }));
+    }
+  });
+
+  // ——— Matricule input “clear” ———
+  const matInput = document.getElementById('NewMat');
+  matInput.addEventListener('input', function() {
+    if (this.value === '') {
+      @this.set('mat_id', null);
+      window.dispatchEvent(new CustomEvent('car-changed', {
+        // we reuse the car-changed event so your matricule block resets
+        detail: { carId: @this.get('car_id'), clientId: @this.get('client_id') }
+      }));
+    }
+  });
+});
 </script>
+

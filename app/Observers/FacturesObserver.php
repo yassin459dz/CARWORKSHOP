@@ -28,6 +28,8 @@ class FacturesObserver
             Cashbox::whereDate('created_at', $facture->created_at->toDateString())
                    ->increment('end_value', $diff);
         }
+        
+        
     }
 
     /**
@@ -37,6 +39,23 @@ class FacturesObserver
     {
         Cashbox::whereDate('created_at', $facture->created_at->toDateString())
         ->decrement('end_value', $facture->total_amount);
+
+        // Lookup the related client
+        $client = $facture->client;
+        if (! $client) {
+            return;
+        }
+
+        // Compute how much debt this facture represents:
+        //   total_amount minus whatever was already paid.
+        $paid      = (float) ($facture->paid_value ?? 0);
+        $total     = (float) $facture->total_amount;
+        $remaining = max(0, $total - $paid);
+
+        // Subtract that from client's sold (debt)
+        // (guard to not go negative if you prefer)
+        $client->sold = max(0, $client->sold - $remaining);
+        $client->save();
     }
 
     /**

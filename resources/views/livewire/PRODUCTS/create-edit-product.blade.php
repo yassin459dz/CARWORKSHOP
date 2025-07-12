@@ -56,9 +56,9 @@
                         @enderror
                     </div>
                     @if($editform)
-                    <button wire:click="update" type="button" class="w-full text-white bg-blue-700 hover:bg-blue-800 transition-transform duration-100 ease-in-out active:scale-90 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update</button>
+                    <button wire:click="update" type="button" class="w-full text-white bg-blue-700 hover:bg-blue-800 mt-4 transition-transform duration-100 ease-in-out active:scale-90 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update</button>
                     @else
-                    <button wire:click="save" type="button" class="w-full text-white bg-blue-700 hover:bg-blue-800 transition-transform duration-100 ease-in-out active:scale-90 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
+                    <button wire:click="save" type="button" class="w-full text-white bg-blue-700 hover:bg-blue-800 mt-4 transition-transform duration-100 ease-in-out active:scale-90 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
                     @endif
                 </form>
 
@@ -73,7 +73,4 @@
         document.querySelector('input[wire\\:model="description"]').value = '';
         document.querySelector('input[wire\\:model="price"]').value = '';
     }
-
-
-
 </script>
