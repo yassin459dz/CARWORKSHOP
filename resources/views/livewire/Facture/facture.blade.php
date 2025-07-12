@@ -67,9 +67,12 @@
                     <div class="mb-6 ">
 {{-------------------------------Client START----------------------------}}
 <div>
+<div class="mb-6 m-4">
+{{-------------------------------Client START----------------------------}}
+<div>
     <div class="relative max-w-sm ">
-        <label for="client" class="block text-sm font-medium text-gray-700">Client Name</label>
-        <div class="flex items-center space-x-0">
+        <label for="client" class="block text-base font-medium text-gray-700">Client Name</label>
+        <div class="flex items-center space-x-0 mt-2">
             <div x-data="{ search: '', open: false }" class="relative w-full">
                 <!-- Searchable Input -->
                 <input
@@ -80,12 +83,12 @@
                     class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none"
                     placeholder="Client"
                     @focus="open = true"
-
+                    autocomplete="off"
                 />
 
 
                 <!-- Dropdown -->
-                <div class="absolute z-50 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+                <div class="absolute z-50 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg smooth-scroll"
                      x-show="open && search.length > 0">
                     <div class="overflow-hidden overflow-y-auto max-h-72">
                         <template x-for="client in [...document.querySelectorAll('#clientSelect option')].filter(c => c.innerText.toLowerCase().includes(search.toLowerCase()))">
@@ -131,138 +134,231 @@
         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
     @enderror
         <!-- Car Dropdown (Dependent on Client) -->
-        <label for="carSelect" class="block mt-4 text-sm font-medium text-gray-700">Car</label>
-        <div class="flex items-center space-x-0">
-            <select id="carSelect" wire:model.live="selectedCar" wire:key="carSelect" class="block w-full p-2 text-gray-800 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none">
-                <option wire:key="car-select-default" value="">Select Car</option>
+        <label for="carSelect" class="block mt-2 pb-2 text-base font-medium text-gray-700">CAR</label>
+<div class="flex items-center space-x-0">
+    <div x-data="{ 
+        carSearch: '', 
+        carOpen: false,
+        selectedClient: @entangle('selectedClient'),
+        init() {
+            this.$watch('selectedClient', () => {
+                this.carSearch = '';
+                this.carOpen = false;
+            });
+        }
+    }" class="relative w-full">
+        <!-- Searchable Input -->
+        <input
+            id="carSearchInput"
+            type="text"
+            x-model="carSearch"
+            class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:outline-none"
+            placeholder="Search Car"
+            @focus="carOpen = true"
+            @click.away="carOpen = false"
+            :disabled="!selectedClient"
+            autocomplete="off"
+        />
+
+        <!-- Dropdown -->
+        <div class="absolute z-40 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+             x-show="carOpen && selectedClient">
+            <div class="overflow-hidden overflow-y-auto max-h-72 smooth-scroll">
                 @foreach ($groupedCars as $groupLabel => $cars)
-                    @php $groupClasses = $groupLabel == 'Owned Car' ? 'text-green-600' : 'text-red-600'; @endphp
-                    <optgroup wire:key="group-{{ $groupLabel }}" label="{{ $groupLabel }}" class="font-semibold {{ $groupClasses }}">
-                        @foreach ($cars as $car)
-                            <option wire:key="car-option-{{ $car->id }}" class="font-semibold" value="{{ $car->id }}">{{ $car->model }}</option>
-                        @endforeach
-                    </optgroup>
+                    @if($cars->count() > 0)
+                        @php 
+                            $groupClasses = $groupLabel == 'Owned Car' ? 'text-green-600' : 'text-red-600'; 
+                            $borderClass = $groupLabel == 'Owned Car' ? 'border-l-4 border-green-400' : 'border-l-4 border-red-400';
+                        @endphp
+                        
+                        <div x-show="carSearch === '' || {{ json_encode($cars->pluck('model')->toArray()) }}.some(model => model.toLowerCase().includes(carSearch.toLowerCase()))">
+                            <!-- Group Header -->
+                            <div class="px-4 py-2 text-xs font-semibold bg-gray-100 border-b {{ $groupClasses }}">
+                                {{ $groupLabel }}
+                            </div>
+                            
+                            <!-- Group Items -->
+                            @foreach($cars as $car)
+                                <div
+                                    class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white {{ $borderClass }}"
+                                    x-show="carSearch === '' || '{{ strtolower($car->model) }}'.includes(carSearch.toLowerCase())"
+                                    @click="
+                                        carSearch = '{{ $car->model }}';
+                                        carOpen = false;
+                                        $wire.set('selectedCar', {{ $car->id }});
+                                    "
+                                >
+                                    <span>{{ $car->model }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 @endforeach
-            </select>
-
-            <button
-                type="button"
-                @click="console.log('Car button clicked')"
-                class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-            </button>
-        </div>
-    <!-- Validation Error Message -->
-    @error('selectedCar')
-        <p class="text-sm text-red-600">{{ $message }}</p>
-    @enderror
-        <!-- Matricule Dropdown (Dependent on Car) -->
-        <div x-data="{
-            showNewMat: false,
-            mat: @entangle('mat'),
-            selectedMat: @entangle('selectedMat'),
-            selectedCar: @entangle('selectedCar'),
-            selectedClient: @entangle('selectedClient'),
-            init() {
-                this.$watch('selectedCar', (val) => {
-                    console.log('Car re-selected after matricule creation:', val);
-                });
-            }
-        }"
-         class="relative">
-            <div class="relative max-w-sm">
-                <label for="matSelect" class="block text-sm font-medium text-gray-700">Matricule</label>
-                <div class="flex items-center space-x-0">
-                    <select
-                        id="matSelect"
-                        wire:model.live="selectedMat"
-                        @change="console.log('Matricule selected:', $event.target.value)"
-                        class="block w-full p-2 border-gray-200 rounded-l-lg"
-                    >
-                        <option value="">Select Matricule</option>
-                        @foreach ($this->filteredMatricules as $mat)
-                            <option value="{{ $mat->id }}">{{ $mat->mat }}</option>
-                        @endforeach
-                    </select>
-
-                    <!-- Create New Matricule Button -->
-                    <button
-                        type="button"
-                        class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
-                        @click="showNewMat = !showNewMat; console.log('Toggle new matricule input:', showNewMat)"
-                        :disabled="!selectedClient || !selectedCar"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
+                
+                <!-- No results message -->
+                @php
+                    $allCarModels = collect($groupedCars)->flatten()->pluck('model')->toArray();
+                @endphp
+                <div x-show="carSearch !== '' && !{{ json_encode($allCarModels) }}.some(model => model.toLowerCase().includes(carSearch.toLowerCase()))" 
+                     class="px-4 py-2 text-sm text-gray-500">
+                    No cars found
                 </div>
             </div>
+        </div>
+
+        <!-- Hidden Select (for wire:model compatibility) -->
+        <select id="carSelect" wire:model.live="selectedCar" wire:key="carSelect" class="hidden">
+            <option wire:key="car-select-default" value="">Select Car</option>
+            @foreach ($groupedCars as $groupLabel => $cars)
+                <optgroup wire:key="group-{{ $groupLabel }}" label="{{ $groupLabel }}">
+                    @foreach ($cars as $car)
+                        <option wire:key="car-option-{{ $car->id }}" value="{{ $car->id }}">{{ $car->model }}</option>
+                    @endforeach
+                </optgroup>
+            @endforeach
+        </select>
+    </div>
+
+    <button
+        type="button"
+        @click="console.log('Car button clicked')"
+        class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+    </button>
+</div>
+
+<!-- Validation Error Message -->
+@error('selectedCar')
+    <p class="text-sm text-red-600">{{ $message }}</p>
+@enderror
+
+
+
+        <!-- Matricule Dropdown (Dependent on Car) -->
+
+        <div x-data="{
+    selectedMat: @entangle('selectedMat'),
+    selectedCar: @entangle('selectedCar'),
+    selectedClient: @entangle('selectedClient'),
+    matSearch: '',
+    matOpen: false,
+    init() {
+        this.$watch('selectedCar', (val) => {
+            console.log('Car re-selected after matricule creation:', val);
+            this.matSearch = '';
+            this.matOpen = false;
+        });
+    }
+}"
+ class="relative">
+    <div class="relative max-w-sm">
+        <label for="matSelect" class="block mt-2 pb-2 text-base font-medium text-gray-700">Matricule</label>
+        <div class="flex items-center space-x-0">
+            <div class="relative w-full">
+                <!-- Searchable Input -->
+                <input
+                    id="matSearchInput"
+                    type="text"
+                    x-model="matSearch"
+                    class="block w-full p-2 text-gray-800 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg focus:ring-blue-500 focus:outline-none"
+                    placeholder="Search Matricule"
+                    @focus="matOpen = true"
+                    @click.away="matOpen = false"
+                    :disabled="!selectedClient || !selectedCar"
+                    autocomplete="off"
+                />
+
+                <!-- Dropdown -->
+                <div class="absolute z-40 w-full mt-1.5 bg-white border border-gray-200 rounded-lg shadow-lg"
+                     x-show="matOpen && selectedClient && selectedCar">
+                    <div class="overflow-hidden overflow-y-auto max-h-72">
+                        @foreach ($this->filteredMatricules as $mat)
+                            <div
+                                class="flex items-center w-full px-4 py-2 text-sm text-gray-800 cursor-pointer hover:bg-blue-600 hover:text-white border-l-4 border-blue-400"
+                                x-show="matSearch === '' || '{{ strtolower($mat->mat) }}'.includes(matSearch.toLowerCase())"
+                                @click="
+                                    matSearch = '{{ $mat->mat }}';
+                                    matOpen = false;
+                                    $wire.set('selectedMat', {{ $mat->id }});
+                                    console.log('Matricule selected:', {{ $mat->id }});
+                                "
+                            >
+                                <span>{{ $mat->mat }}</span>
+                            </div>
+                        @endforeach
+                        
+                        <!-- No results message -->
+                        @php
+                            $allMatricules = $this->filteredMatricules->pluck('mat')->toArray();
+                        @endphp
+                        <div x-show="matSearch !== '' && !{{ json_encode($allMatricules) }}.some(mat => mat.toLowerCase().includes(matSearch.toLowerCase()))" 
+                             class="px-4 py-2 text-sm text-gray-700">
+                            No Matricules Found
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Select (for wire:model compatibility)-->
+                <select
+                    id="matSelect"
+                    wire:model.live="selectedMat"
+                    class="hidden"
+                >
+                    <option value="">Select Matricule</option>
+                    @foreach ($this->filteredMatricules as $mat)
+                        <option value="{{ $mat->id }}">{{ $mat->mat }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Create New Matricule Button -->
+            <button
+                type="button"
+                class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
+                @click="
+                    if (selectedClient && selectedCar && matSearch && matSearch.trim() !== '') {
+                        // Store the selected car temporarily
+                        const currentCar = selectedCar;
+                        const newMatValue = matSearch.trim();
+                        
+                        $wire.createMatricule(newMatValue).then(() => {
+                            // Keep the created matricule value in the search field
+                            matSearch = newMatValue;
+                            matOpen = false;
+                            
+                            // Explicitly reset the selected car
+                            $wire.set('selectedCar', currentCar);
+                            setTimeout(() => {
+                                // Dispatch custom event for car restoration after short delay
+                                window.dispatchEvent(new CustomEvent('car-restored', {
+                                    detail: { id: currentCar }
+                                }));
+                            }, 50);
+                        });
+                    }
+                "
+                :disabled="!selectedClient || !selectedCar || !matSearch || matSearch.trim() === ''"
+                title="Create New Matricule"
+            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
+                <path fill="currentColor" d="M3 5a2 2 0 0 1 2-2h1v3.5A1.5 1.5 0 0 0 7.5 8h4A1.5 1.5 0 0 0 13 6.5V3h.379a2 2 0 0 1 1.414.586l1.621 1.621A2 2 0 0 1 17 6.621V15a2 2 0 0 1-2 2v-5.5a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 5 11.5V17a2 2 0 0 1-2-2zm9-2H7v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5zm2 8.5V17H6v-5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5" />
+            </svg>
+            </button>
+        </div>
+    </div>
+    
     <!-- Validation Error Message -->
     @error('selectedMat')
         <p class="text-sm text-red-600">{{ $message }}</p>
     @enderror
- <!-- New Matricule Input Section -->
- <div
- class="relative max-w-sm mt-2"
- x-show="showNewMat"
- x-transition:enter="transition ease-out duration-300"
- x-transition:enter-start="opacity-0 transform scale-95"
- x-transition:enter-end="opacity-100 transform scale-100"
- x-transition:leave="transition ease-in duration-200"
- x-transition:leave-start="opacity-100 transform scale-100"
- x-transition:leave-end="opacity-0 transform scale-95"
->
- <div class="relative max-w-sm">
-     <label for="NewMat" class="block text-sm font-medium text-gray-700">New Matricule</label>
-     <div class="relative flex items-center">
-         <div class="relative flex w-full">
-             <input
-                 id="NewMat"
-                 type="text"
-                 class="block w-full p-2 text-sm text-gray-800 placeholder-gray-400 bg-white border border-gray-200 rounded-l-lg focus:border-blue-500 focus:ring-blue-500"
-                 x-model="mat"
-                 placeholder="Enter new matricule"
-                 @input="console.log('New matricule input:', $event.target.value)"
-             />
-             <button
-                 type="button"
-                 class="px-2.5 py-2 text-white bg-blue-700 hover:bg-blue-800 border-l border-gray-300 rounded-r-lg focus:ring-4 focus:outline-none focus:ring-blue-300"
-                 @click="
-                     if (mat && mat.length > 0) {
-                         // Store the selected car temporarily
-                         const currentCar = selectedCar;
-
-                         $wire.createMatricule(mat).then(() => {
-                             // Clear mat input and close the input field
-                             mat = '';
-                             showNewMat = false;
-
-                             // Explicitly reset the selected car
-                             $wire.set('selectedCar', currentCar);
-                             setTimeout(() => {
-                                 // Dispatch custom event for car restoration after short delay
-                                 window.dispatchEvent(new CustomEvent('car-restored', {
-                                     detail: { id: currentCar }
-                                 }));
-                             }, 50);
-                         });
-                     }
-                 "
-             >
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20">
-                     <path fill="currentColor" d="M3 5a2 2 0 0 1 2-2h1v3.5A1.5 1.5 0 0 0 7.5 8h4A1.5 1.5 0 0 0 13 6.5V3h.379a2 2 0 0 1 1.414.586l1.621 1.621A2 2 0 0 1 17 6.621V15a2 2 0 0 1-2 2v-5.5a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 5 11.5V17a2 2 0 0 1-2-2zm9-2H7v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5zm2 8.5V17H6v-5.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5" />
-                 </svg>
-             </button>
-         </div>
-     </div>
- </div>
 </div>
 </div>
-@php
+
+            <div class="mt-2 ">
+                        @php
                             $sold = $clientSold;
                             $soldColor = 'bg-green-100 text-green-800 border-green-300';
                             $soldLabel = 'No Sold';
@@ -275,21 +371,22 @@
                             }
                         @endphp
                         <span class="font-semibold">SOLD : {{ number_format($clientSold, 2) }} DA
-                            <span class="inline-block ml-2 px-2 py-1 rounded border text-xs font-bold {{ $soldColor }}">
+                            <span class="inline-block ml-2 px-2 py-1 rounded border text-sm font-bold {{ $soldColor }}">
                                 {{ $soldLabel }}
                             </span>
                         </span>
+                    </div>
 
                     @endif
                     <!-- Vehicle Details (Livewire Step 2) -->
                     @if($currentstep === 2)
-                    <div class="space-y-4">
+                    <div class="space-y-4 m-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">KM</label>
                             <input
                                 type="number"
                                 wire:model="km"
-                                class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                class="block w-5/6 mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                             >
                             @error('km')
                                 <span class="text-xs text-red-500">{{ $message }}</span>
@@ -300,7 +397,7 @@
                             <input
                                 type="text"
                                 wire:model="remark"
-                                class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                class="block w-5/6 mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                             >
                         </div>
                     </div>
@@ -720,7 +817,7 @@
                     @endif
 
                     <!-- Navigation Buttons -->
-                    <div class="flex justify-between mt-6">
+                    <div class="flex justify-between mt-6 mr-4">
                         @if($currentstep > 1)
                             <button
                                 wire:click="decrementstep"

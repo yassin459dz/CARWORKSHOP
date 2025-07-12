@@ -11,7 +11,6 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 
-
 class Facture extends Component
 {
     public $clientPaid = 0;
@@ -48,8 +47,7 @@ class Facture extends Component
     public $selectedClient = null;
     public $selectedMat = null;
     public $selectedCar = null;
-    public $previousCarSelection = null; // Track previous car selection
-
+    public $previousCarSelection = null;
 
     public function render()
     {
@@ -59,40 +57,59 @@ class Facture extends Component
             $client = \App\Models\clients::find($this->selectedClient);
             $clientSold = $client ? $client->sold : 0;
         }
-        return view('livewire.Facture.facture', compact('groupedCars', 'clientSold'));
+        
+        // Make sure filteredMatricules is available for the view
+        $filteredMatricules = $this->filteredMatricules;
+        
+        return view('livewire.Facture.facture', compact('groupedCars', 'clientSold', 'filteredMatricules'));
     }
 
     public function mount()
     {
         $this->product = Products::all();
-        // $this->allmat = collect();
-
-        //  $this->allmat = matricules::all();
-
         $this->fetchClients();
         $this->allcars = collect();
         $this->allcars = cars::all();
-        // Initialize payment properties
         $this->status = 'NOT PAID';
         $this->clientPaid = 0;
     }
+
     public function updatedSelectedMat($value)
     {
         if (!$value) {
             $this->mat = '';
         }
     }
+
+    public function updatedSelectedClient($value)
+    {
+        // Reset car and matricule when client changes
+        $this->selectedCar = null;
+        $this->selectedMat = null;
+        $this->mat = '';
+    }
+
+    public function updatedSelectedCar($value)
+    {
+        // Reset matricule when car changes
+        $this->selectedMat = null;
+        $this->mat = '';
+        
+        // Auto-select if only one matricule exists
+        if ($this->filteredMatricules->count() === 1) {
+            $this->selectedMat = $this->filteredMatricules->first()->id;
+        }
+    }
+
     #[Computed()]
     public function getGroupedCarsProperty(): array
     {
-        // Get IDs of cars associated with the selected client, if any.
         $ownedCarIds = $this->selectedClient
             ? matricules::where('client_id', $this->selectedClient)
                 ->pluck('car_id')
                 ->toArray()
             : [];
 
-        // Filter the complete list into two groups.
         $ownedCars = $this->allcars->filter(function ($car) use ($ownedCarIds) {
             return in_array($car->id, $ownedCarIds);
         });
@@ -107,60 +124,34 @@ class Facture extends Component
         ];
     }
 
-    public function updated($property, $value)
+    #[Computed]
+    public function filteredMatricules()
     {
-        if (in_array($property, ['selectedClient', 'selectedCar'])) {
-            // Reset selected mat when client or car changes
-            $this->selectedMat = null;
-
-            // Auto-select if only one matricule exists
-            if ($this->filteredMatricules->count() === 1) {
-                $this->selectedMat = $this->filteredMatricules->first()->id;
-            }
+        if ($this->selectedClient && $this->selectedCar) {
+            return matricules::where('client_id', $this->selectedClient)
+                ->where('car_id', $this->selectedCar)
+                ->get();
         }
+        return collect();
     }
 
-#[Computed]
-public function filteredMatricules()
-{
-    if ($this->selectedClient && $this->selectedCar) {
-        return matricules::where('client_id', $this->selectedClient)
-            ->where('car_id', $this->selectedCar)
-            ->get();
+    public function createMatricule($matNumber)
+    {
+        $matricule = Matricules::create([
+            'client_id' => $this->selectedClient,
+            'car_id'    => $this->selectedCar,
+            'mat'       => $matNumber
+        ]);
+
+        // Automatically select the newly created matricule
+        $this->selectedMat = $matricule->id;
+        
+        // Dispatch a browser event to update the frontend
+        $this->dispatch('matricule-created', [
+            'id' => $matricule->id,
+            'mat' => $matNumber
+        ]);
     }
-    return collect();
-}
-
-
-// public function createMatricule($matNumber)
-// {
-
-
-//     $matricule = Matricules::create([
-//         'client_id' => $this->selectedClient,
-//         'car_id'    => $this->selectedCar,
-//         'mat'       => $matNumber
-//     ]);
-
-//     $this->selectedMat = $matricule->id;
-//     $this->mat         = $matNumber;
-
-// }
-public function createMatricule($matNumber)
-{
-    $matricule = Matricules::create([
-        'client_id' => $this->selectedClient,
-        'car_id'    => $this->selectedCar,
-        'mat'       => $matNumber
-    ]);
-
-    // $this->selectedMat = $matricule->id;
-    // $this->mat         = $matNumber;
-
-    // Emit event with car info
-    // $this->dispatch('car-restored', id: $this->selectedCar);
-}
-
 
     public function incrementstep()
     {
@@ -183,21 +174,14 @@ public function createMatricule($matNumber)
             $this->validate([
                 'selectedClient' => 'required|exists:clients,id',
                 'selectedCar' => 'required|exists:cars,id',
-                 'selectedMat' => 'required|exists:matricules,id'
+                'selectedMat' => 'required|exists:matricules,id'
             ], [
                 'selectedClient.required' => 'Please select a Client',
                 'selectedCar.required' => 'Please select a Car',
-                 'selectedMat.required' => 'Please select a Matricule'
+                'selectedMat.required' => 'Please select a Matricule'
             ]);
         }
     }
-
-
-
-
-
-
-
 
     public function fetchBrands()
     {
@@ -209,11 +193,6 @@ public function createMatricule($matNumber)
         $this->allclients = clients::all();
     }
 
-    // public function fetchCars()
-    // {
-    //     $this->allcars = cars::all();
-    // }
-
     public function fetchProduct()
     {
         $this->product = Products::all();
@@ -223,8 +202,6 @@ public function createMatricule($matNumber)
     {
         $this->allclients = clients::all();
         $this->allbrands = brands::all();
-        // $this->allcars = cars::all();
-        // $this->allmat = matricules::all();
         $this->product = Products::all();
 
         if ($this->client_id) {
@@ -234,13 +211,6 @@ public function createMatricule($matNumber)
             }
         }
 
-        // if ($this->car_id) {
-        //     $selectedCar = $this->allcars->where('id', $this->car_id)->first();
-        //     if ($selectedCar) {
-        //         $this->search = $selectedCar->Model;
-        //     }
-        // }
-
         if ($this->mat_id) {
             $selectedMatricule = $this->allmat->where('id', $this->mat_id)->first();
             if ($selectedMatricule) {
@@ -248,11 +218,6 @@ public function createMatricule($matNumber)
             }
         }
     }
-
-
-
-
-
 
     public function submit()
     {
@@ -276,20 +241,17 @@ public function createMatricule($matNumber)
 
         $totalAmount = collect($processedOrderItems)->sum('total') + $this->extraCharge - $this->discountAmount;
 
-        // Update client sold (debt) correctly based on payment
         $client = clients::findOrFail($this->selectedClient);
         $currentSold = (float)($client->sold ?? 0);
 
         if ($this->clientPaid > 0) {
             $remaining = $totalAmount - $this->clientPaid;
-            // If there's a remaining amount to be paid, update sold
             if ($remaining > 0) {
                 $client->sold = $currentSold + $remaining;
                 $client->save();
                 Log::info("Client {$client->name} has a remaining balance of {$client->sold}");
                 $this->status = 'NOT PAID';
             } else {
-                // Overpayment, reduce previous debt (allow negative)
                 $overpayment = abs($remaining);
                 $client->sold = $currentSold - $overpayment;
                 $client->save();
@@ -297,16 +259,13 @@ public function createMatricule($matNumber)
                 $this->status = 'PAID';
             }
         } else {
-            // If no payment was specified, treat as fully paid
             $this->clientPaid = $totalAmount;
             $client->sold = $currentSold;
             $client->save();
             $this->status = 'PAID';
         }
 
-        // Determine paid_value: always set to what the client actually paid
         $paidValue = $this->clientPaid > 0 ? $this->clientPaid : $totalAmount;
-
 
         Factures::create([
             'client_id' => $this->selectedClient,

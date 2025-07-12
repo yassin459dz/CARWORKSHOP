@@ -17,11 +17,7 @@ class ListFacture extends Component
 
     public function render()
     {
-        // $this->factures=Factures::all();
-        // $this->factures = Factures::with('client')->get();
-
-        // return view('livewire.FACTURE.list-facture');
-        $factures = Factures::paginate(10);
+        $factures = Factures::all();
         return view('livewire.FACTURE.list-facture', compact('factures'));
     }
 
