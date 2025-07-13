@@ -44,69 +44,179 @@
           class="absolute top-0 right-0 px-6 py-2 mt-2 mr-4 font-medium text-white transition-transform duration-100 ease-in-out bg-blue-600 rounded-lg shadow-md text-gl hover:bg-blue-700 active:scale-90">
           Lock Cashbox
         </button>
-        <div class="overflow-x-auto bg-white rounded-lg shadow">
-            <table class="w-full text-sm text-gray-700 table-fixed">
-                <thead class="text-xs uppercase bg-gray-100">
-                    <tr>
-                        <th class="w-8 px-1 py-2 text-center">OK</th>
-                        <th class="px-4 py-2">Date</th>
-                        <th class="px-4 py-2">Start</th>
-                        <th class="px-4 py-2 text-blue-600">SALES</th>
-                        <th class="px-4 py-2 text-red-600">CASH OUT</th>
-                        <th class="px-4 py-2">Decalage</th>
-                        <th class="w-16 px-2 py-2 text-center">Edited</th>
-                        <th class="px-4 py-2">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($dailyBalances as $date => $data)
-                    @php
-                    $checked = $data['manual_end_set'];
-                    $rowColor = $checked ? 'bg-green-50' : 'bg-white';
-                  @endphp
-
-                        <tr class="border-t {{ $rowColor }}">
-                            {{-- New column: checkbox indicator --}}
-     {{-- OK column, tiny --}}
-     <td class="w-8 px-1 py-2 text-center">
-        @if($checked)
-            {{-- Green check icon --}}
-            <svg class="inline-block w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M8 12l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Replace the existing table structure in your blade template -->
+<div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+    <!-- Table Header with Gradient -->
+    <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4">
+        <h2 class="text-white text-lg font-semibold flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
-        @else
-            {{-- Red X icon --}}
-            <svg class="inline-block w-5 h-5 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M9 9l6 6m0-6l-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        @endif
-    </td>                   <td class="px-4 py-2 font-medium">{{ \Carbon\Carbon::parse($data['created_at'])->format('H:i-d/m/Y') }}</td>
-                            <td class="px-4 py-2">{{ number_format($data['start'], 2, ',', ' ') }} DA</td>
-                            <td class="px-4 py-2 text-blue-700">{{ number_format($data['entree'], 2, ',', ' ') }} DA</td>
-                            <td class="px-4 py-2 text-red-700">{{ number_format(collect($data['mouvements'])->sum('montant'), 2, ',', ' ') }} DA</td>
-                            <td class="px-4 py-2 font-semibold">{{ number_format($data['decalage'] ?? 0,2,',',' ') }} DA</td>
-                            <td class="w-16 px-2 py-2 text-xs text-center text-gray-600">
-                                @if($checked)
-                                  {{ \Carbon\Carbon::parse($data['updated_at'])->format('H:i-d/m/Y') }}
-                                @else
-                                  —
-                                @endif
-                              </td>
-                            <td class="px-4 py-2">
-                                <button wire:click="view('{{ $date }}')" class="font-medium text-blue-600 hover:underline">Details</button>
-                                <button wire:click="editEndValue('{{ $date }}')" class="text-yellow-600 hover:underline">End Value</button>
-                            </td>
+            Daily Balance Overview
+        </h2>
+    </div>
 
+    <!-- Responsive Table Wrapper -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-gray-700 min-w-full">
+<thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+    <tr>
+        <th class="w-12 px-3 py-4 text-center font-semibold text-gray-800">Status</th>
+        <th class="px-6 py-4 text-center font-semibold text-gray-800">Date & Time</th>
+        <th class="px-6 py-4 text-center font-semibold text-gray-800">Starting Balance</th>
+        <th class="px-6 py-4 text-center font-bold text-blue-700">
+            <div class="flex justify-center items-center">
+                SALES
+            </div>
+        </th>
+        <th class="px-6 py-4 text-center font-bold text-green-700">
+            <div class="flex justify-center items-center">
+                CASH IN
+            </div>
+        </th>
+        <th class="px-6 py-4 text-center font-bold text-red-700">
+            <div class="flex justify-center items-center">
+                CASH OUT
+            </div>
+        </th>
+        <th class="px-6 py-4 text-center font-semibold text-gray-800">
+            <div class="flex justify-center items-center">
+                Decalage
+            </div>
+        </th>
+        <th class="w-20 px-3 py-4 text-center font-semibold text-gray-800">Last Edit</th>
+        <th class="px-6 py-4 text-center font-semibold text-gray-800">Actions</th>
+    </tr>
+</thead>
 
-                        </tr>
-                    @empty
-                        <tr><td colspan="8" class="px-4 py-6 text-center text-gray-500">No data available.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+<tbody class="divide-y divide-gray-100">
+    @forelse($dailyBalances as $date => $data)
+    @php
+        $checked = $data['manual_end_set'];
+        $rowColor = $checked ? 'bg-gradient-to-r from-green-50 to-emerald-50' : 'bg-white hover:bg-gray-50';
+    @endphp
+
+    <tr class="border-t {{ $rowColor }} transition-all duration-300 hover:shadow-md text-center">
+        {{-- Status --}}
+        <td class="w-12 px-3 py-2">
+            @if($checked)
+                <div class="inline-flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                </div>
+            @else
+                <div class="inline-flex items-center justify-center w-8 h-8 bg-red-100 rounded-full">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+            @endif
+        </td>
+
+        {{-- Date & Time --}}
+        <td class="px-6 py-2">
+            <div class="flex flex-col items-center">
+                <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                    {{ \Carbon\Carbon::parse($data['created_at'])->format('d/m/Y') }}
+                </span>
+                <span class="rounded-md text-xs font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                    {{ \Carbon\Carbon::parse($data['created_at'])->format('H:i') }}
+                </span>
+            </div>
+        </td>
+
+        {{-- Starting Balance --}}
+        <td class="px-6 py-2">
+            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-blue-50 text-gray-800">
+                {{ number_format($data['start'], 2, ',', ' ') }} DA
+            </span>
+        </td>
+
+        {{-- SALES --}}
+        <td class="px-6 py-2">
+            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-blue-600/10 px-2 py-1 bg-blue-50 text-blue-800">
+                {{ number_format($data['entree'], 2, ',', ' ') }} DA
+            </span>
+        </td>
+
+        {{-- CASH IN --}}
+        <td class="px-6 py-2">
+            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-green-600/10 px-2 py-1 bg-green-50 text-green-800">
+                {{ number_format($data['cash_in'], 2, ',', ' ') }} DA
+            </span>
+        </td>
+
+        {{-- CASH OUT --}}
+        <td class="px-6 py-2">
+            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-red-600/10 px-2 py-1 bg-red-50 text-red-800">
+                {{ number_format($data['sortie'], 2, ',', ' ') }} DA
+            </span>
+        </td>
+
+        {{-- Decalage --}}
+        <td class="px-6 py-2">
+            @php
+                $decalage = $data['decalage'] ?? 0;
+                $decalageColor = $decalage > 0
+                    ? 'text-green-800 bg-green-100 ring-green-600/10'
+                    : ($decalage < 0
+                        ? 'text-red-800 bg-red-100 ring-red-600/10'
+                        : 'text-gray-800 bg-gray-100 ring-gray-600/10');
+            @endphp
+            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-inset px-2 py-1 whitespace-nowrap {{ $decalageColor }}">
+                {{ $decalage > 0 ? '+' : '' }}{{ number_format($decalage, 2, ',', ' ') }} DA
+            </span>
+        </td>
+
+        {{-- Last Edit --}}
+        <td class="px-3 py-2">
+            <div class="flex flex-col items-center">
+                @if($checked)
+                    <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                        {{ \Carbon\Carbon::parse($data['updated_at'])->format('d/m/Y') }}
+                    </span>
+                    <span class="rounded-md text-xs font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                        {{ \Carbon\Carbon::parse($data['updated_at'])->format('H:i') }}
+                    </span>
+                @else
+                    <span class="text-gray-400">—</span>
+                @endif
+            </div>
+        </td>
+
+        {{-- Actions --}}
+        <td class="px-6 py-2">
+            <div class="flex justify-center space-x-2">
+                <button wire:click="view('{{ $date }}')" 
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500 transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                    Details
+                </button>
+            </div>
+        </td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="9" class="px-6 py-12 text-center">
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-500 text-lg font-medium">No data available</p>
+                <p class="text-gray-400 text-sm">Daily balance records will appear here</p>
+            </div>
+        </td>
+    </tr>
+    @endforelse
+</tbody>
+
+        </table>
+    </div>
+</div>
 
 
 

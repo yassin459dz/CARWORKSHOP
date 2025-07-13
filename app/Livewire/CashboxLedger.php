@@ -110,10 +110,11 @@ class CashboxLedger extends Component
                        : (float)$box->start_value;
 
                 $in = Factures::whereDate('created_at',$date)->sum('total_amount');
+                $cashIn = Factures::whereDate('created_at',$date)->sum('paid_value'); // Add this line
                 $mouvements = CaisseHistorique::whereDate('created_at',$date)->get();
                 $out = $mouvements->sum('montant');
 
-                $computed = $start + $in - $out;
+                $computed = $start + $cashIn - $out; // Change $in to $cashIn
                 $running  = $box->end_value !== null ? $box->end_value : $computed;
 
                 return [
@@ -121,6 +122,7 @@ class CashboxLedger extends Component
                         'created_at'       => $box->created_at,
                         'start'            => $start,
                         'entree'           => $in,
+                        'cash_in'          => $cashIn, // Add this line
                         'sortie'           => $out,
                         'computed'         => $computed,
                         'solde'            => $running,
@@ -145,7 +147,7 @@ class CashboxLedger extends Component
         $this->startValue    = $this->dailyBalances[$date]['start'];
         $this->inflow        = $this->dailyBalances[$date]['entree'];
         $this->outflow       = $this->dailyBalances[$date]['sortie'];
-        $this->total         = $this->startValue + $this->inflow - $this->outflow;
+        $this->total         = $this->startValue + $this->dailyBalances[$date]['cash_in'] - $this->outflow; // Change to use cash_in
         $this->facturesOfDay = Factures::whereDate('created_at', $date)
                                         ->with(['client','car'])
                                         ->get();
@@ -209,7 +211,7 @@ class CashboxLedger extends Component
             return;
         }
 
-        // Save today’s actual count and leftover
+        // Save today's actual count and leftover
         $todayBox->end_value         = $this->actualCashCount;
         $todayBox->manual_end_value  = $this->actualCashCount;
         $todayBox->manual_end_set    = true;
