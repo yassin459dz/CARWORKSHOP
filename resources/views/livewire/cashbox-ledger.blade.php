@@ -56,36 +56,36 @@
         </h2>
     </div>
 
-    <!-- Responsive Table Wrapper -->
-    <div class="overflow-x-auto">
+<!-- Responsive Table Wrapper -->
+<div class="overflow-x-auto">
         <table class="w-full text-sm text-gray-700 min-w-full">
 <thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
     <tr>
-        <th class="w-12 px-3 py-4 text-center font-semibold text-gray-800">Status</th>
-        <th class="px-6 py-4 text-center font-semibold text-gray-800">Date & Time</th>
-        <th class="px-6 py-4 text-center font-semibold text-gray-800">Starting Balance</th>
-        <th class="px-6 py-4 text-center font-bold text-blue-700">
+        <th class="px-1 py-4 w-12 text-center font-semibold text-gray-800">Status</th>
+        <th class="px-1 py-4 text-center font-semibold text-gray-800">Date & Time</th>
+        <th class="px-1 py-4 text-center font-semibold text-gray-800">Starting Balance</th>
+        <th class="px-1 py-4 text-center font-bold text-blue-700">
             <div class="flex justify-center items-center">
                 SALES
             </div>
         </th>
-        <th class="px-6 py-4 text-center font-bold text-green-700">
+        <th class="px-1 py-4 text-center font-bold text-green-700">
             <div class="flex justify-center items-center">
                 CASH IN
             </div>
         </th>
-        <th class="px-6 py-4 text-center font-bold text-red-700">
+        <th class="px-1 py-4 text-center font-bold text-red-700">
             <div class="flex justify-center items-center">
                 CASH OUT
             </div>
         </th>
-        <th class="px-6 py-4 text-center font-semibold text-gray-800">
+        <th class="px-1 py-4 text-center font-semibold text-gray-800">
             <div class="flex justify-center items-center">
                 Decalage
             </div>
         </th>
-        <th class="w-20 px-3 py-4 text-center font-semibold text-gray-800">Last Edit</th>
-        <th class="px-6 py-4 text-center font-semibold text-gray-800">Actions</th>
+        <th class="w-20 px-1 py-4 text-center font-semibold text-gray-800">Last Edit</th>
+        <th class="px-1 py-4 text-center font-semibold text-gray-800">Actions</th>
     </tr>
 </thead>
 
@@ -98,7 +98,7 @@
 
     <tr class="border-t {{ $rowColor }} transition-all duration-300 hover:shadow-md text-center">
         {{-- Status --}}
-        <td class="w-12 px-3 py-2">
+        <td class="w-12 px-1 py-2">
             @if($checked)
                 <div class="inline-flex items-center justify-center w-8 h-8 bg-green-100 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
@@ -115,7 +115,7 @@
         </td>
 
         {{-- Date & Time --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <div class="flex flex-col items-center">
                 <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
                     {{ \Carbon\Carbon::parse($data['created_at'])->format('d/m/Y') }}
@@ -127,35 +127,35 @@
         </td>
 
         {{-- Starting Balance --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-blue-50 text-gray-800">
                 {{ number_format($data['start'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- SALES --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-blue-600/10 px-2 py-1 bg-blue-50 text-blue-800">
                 {{ number_format($data['entree'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- CASH IN --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-green-600/10 px-2 py-1 bg-green-50 text-green-800">
                 {{ number_format($data['cash_in'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- CASH OUT --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-red-600/10 px-2 py-1 bg-red-50 text-red-800">
                 {{ number_format($data['sortie'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- Decalage --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             @php
                 $decalage = $data['decalage'] ?? 0;
                 $decalageColor = $decalage > 0
@@ -170,7 +170,7 @@
         </td>
 
         {{-- Last Edit --}}
-        <td class="px-3 py-2">
+        <td class="px-1 py-2">
             <div class="flex flex-col items-center">
                 @if($checked)
                     <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
@@ -186,7 +186,7 @@
         </td>
 
         {{-- Actions --}}
-        <td class="px-6 py-2">
+        <td class="px-1 py-2">
             <div class="flex justify-center space-x-2">
                 <button wire:click="view('{{ $date }}')" 
                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500 transition">
@@ -201,7 +201,7 @@
     </tr>
     @empty
     <tr>
-        <td colspan="9" class="px-6 py-12 text-center">
+        <td colspan="9" class="px-1 py-12 text-center">
             <div class="flex flex-col items-center">
                 <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
