@@ -45,10 +45,10 @@
           Lock Cashbox
         </button>
 <!-- Replace the existing table structure in your blade template -->
-<div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+<div class="overflow-hidden bg-white border border-gray-100 shadow-2xl rounded-2xl">
     <!-- Table Header with Gradient -->
-    <div class="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4">
-        <h2 class="text-white text-lg font-semibold flex items-center">
+    <div class="px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-700">
+        <h2 class="flex items-center text-lg font-semibold text-white">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
@@ -58,34 +58,34 @@
 
 <!-- Responsive Table Wrapper -->
 <div class="overflow-x-auto">
-        <table class="w-full text-sm text-gray-700 min-w-full">
-<thead class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+        <table class="w-full min-w-full text-sm text-gray-700">
+<thead class="border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
     <tr>
-        <th class="px-1 py-4 w-12 text-center font-semibold text-gray-800">Status</th>
-        <th class="px-1 py-4 text-center font-semibold text-gray-800">Date & Time</th>
-        <th class="px-1 py-4 text-center font-semibold text-gray-800">Starting Balance</th>
-        <th class="px-1 py-4 text-center font-bold text-blue-700">
-            <div class="flex justify-center items-center">
+        <th class="w-12 px-1 py-4 font-semibold text-center text-gray-800">Status</th>
+        <th class="px-1 py-4 font-semibold text-center text-gray-800">Date & Time</th>
+        <th class="px-1 py-4 font-semibold text-center text-gray-800">Starting Balance</th>
+        <th class="px-1 py-4 font-bold text-center text-blue-700">
+            <div class="flex items-center justify-center">
                 SALES
             </div>
         </th>
-        <th class="px-1 py-4 text-center font-bold text-green-700">
-            <div class="flex justify-center items-center">
+        <th class="px-1 py-4 font-bold text-center text-green-700">
+            <div class="flex items-center justify-center">
                 CASH IN
             </div>
         </th>
-        <th class="px-1 py-4 text-center font-bold text-red-700">
-            <div class="flex justify-center items-center">
+        <th class="px-1 py-4 font-bold text-center text-red-700">
+            <div class="flex items-center justify-center">
                 CASH OUT
             </div>
         </th>
-        <th class="px-1 py-4 text-center font-semibold text-gray-800">
-            <div class="flex justify-center items-center">
+        <th class="px-1 py-4 font-semibold text-center text-gray-800">
+            <div class="flex items-center justify-center">
                 Decalage
             </div>
         </th>
-        <th class="w-20 px-1 py-4 text-center font-semibold text-gray-800">Last Edit</th>
-        <th class="px-1 py-4 text-center font-semibold text-gray-800">Actions</th>
+        <th class="w-20 px-1 py-4 font-semibold text-center text-gray-800">Last Edit</th>
+        <th class="px-1 py-4 font-semibold text-center text-gray-800">Actions</th>
     </tr>
 </thead>
 
@@ -117,10 +117,10 @@
         {{-- Date & Time --}}
         <td class="px-1 py-2">
             <div class="flex flex-col items-center">
-                <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                <span class="px-2 py-1 text-sm font-bold text-gray-800 rounded-md ring-1 ring-inset ring-gray-600/10 bg-gray-50">
                     {{ \Carbon\Carbon::parse($data['created_at'])->format('d/m/Y') }}
                 </span>
-                <span class="rounded-md text-xs font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                <span class="px-2 py-1 text-xs font-bold text-gray-800 rounded-md ring-1 ring-inset ring-gray-600/10 bg-gray-50">
                     {{ \Carbon\Carbon::parse($data['created_at'])->format('H:i') }}
                 </span>
             </div>
@@ -128,28 +128,28 @@
 
         {{-- Starting Balance --}}
         <td class="px-1 py-2">
-            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-blue-50 text-gray-800">
+            <span class="inline-flex items-center justify-center px-2 py-1 text-base font-bold text-gray-800 rounded-md ring-1 ring-inset ring-gray-600/10 bg-blue-50">
                 {{ number_format($data['start'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- SALES --}}
         <td class="px-1 py-2">
-            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-blue-600/10 px-2 py-1 bg-blue-50 text-blue-800">
+            <span class="inline-flex items-center justify-center px-2 py-1 text-base font-bold text-blue-800 rounded-md ring-1 ring-blue-600/10 bg-blue-50">
                 {{ number_format($data['entree'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- CASH IN --}}
         <td class="px-1 py-2">
-            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-green-600/10 px-2 py-1 bg-green-50 text-green-800">
+            <span class="inline-flex items-center justify-center px-2 py-1 text-base font-bold text-green-800 rounded-md ring-1 ring-green-600/10 bg-green-50">
                 {{ number_format($data['cash_in'], 2, ',', ' ') }} DA
             </span>
         </td>
 
         {{-- CASH OUT --}}
         <td class="px-1 py-2">
-            <span class="inline-flex justify-center items-center rounded-md text-base font-bold ring-1 ring-red-600/10 px-2 py-1 bg-red-50 text-red-800">
+            <span class="inline-flex items-center justify-center px-2 py-1 text-base font-bold text-red-800 rounded-md ring-1 ring-red-600/10 bg-red-50">
                 {{ number_format($data['sortie'], 2, ',', ' ') }} DA
             </span>
         </td>
@@ -173,10 +173,10 @@
         <td class="px-1 py-2">
             <div class="flex flex-col items-center">
                 @if($checked)
-                    <span class="rounded-md text-sm font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                    <span class="px-2 py-1 text-sm font-bold text-gray-800 rounded-md ring-1 ring-inset ring-gray-600/10 bg-gray-50">
                         {{ \Carbon\Carbon::parse($data['updated_at'])->format('d/m/Y') }}
                     </span>
-                    <span class="rounded-md text-xs font-bold ring-1 ring-inset ring-gray-600/10 px-2 py-1 bg-gray-50 text-gray-800">
+                    <span class="px-2 py-1 text-xs font-bold text-gray-800 rounded-md ring-1 ring-inset ring-gray-600/10 bg-gray-50">
                         {{ \Carbon\Carbon::parse($data['updated_at'])->format('H:i') }}
                     </span>
                 @else
@@ -188,7 +188,7 @@
         {{-- Actions --}}
         <td class="px-1 py-2">
             <div class="flex justify-center space-x-2">
-                <button wire:click="view('{{ $date }}')" 
+                <button wire:click="view('{{ $date }}')"
                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:ring-blue-500 transition">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -203,11 +203,11 @@
     <tr>
         <td colspan="9" class="px-1 py-12 text-center">
             <div class="flex flex-col items-center">
-                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-12 h-12 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                <p class="text-gray-500 text-lg font-medium">No data available</p>
-                <p class="text-gray-400 text-sm">Daily balance records will appear here</p>
+                <p class="text-lg font-medium text-gray-500">No data available</p>
+                <p class="text-sm text-gray-400">Daily balance records will appear here</p>
             </div>
         </td>
     </tr>
@@ -242,7 +242,7 @@
                 </svg>
             </button>
 
-            <!-- Date display -->
+            <!-- Date display gggg-->
             <h3 class="flex items-center text-xl font-semibold text-gray-800 gap-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
