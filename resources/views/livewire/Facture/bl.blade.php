@@ -471,18 +471,18 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" x-cloak>
         {{-- Modal Content --}}
         <div class="relative w-full max-w-md p-6 bg-white rounded-lg shadow-xl">
-            <h2 class="mb-4 text-2xl font-bold text-gray-800">Validate Order ?</h2>
-            <p class="mb-6 text-xl text-gray-600">
+            <h2 class="mb-4 text-2xl font-bold text-gray-800">Validate Order?</h2>
+            <p class="mb-6 font-bold text-lg text-gray-600">
                 Total Amount : <span class="font-bold text-blue-600"
                     x-text="calculateTotal().toFixed(2) + ' DA'"></span>
             </p>
 
             <div class="flex justify-end space-x-4">
-                <button @click="confirmModalOpen = false"
+                <button type="button" @click="confirmModalOpen = false"
                     class="px-4 py-2 font-semibold text-gray-700 transition duration-150 ease-in-out bg-gray-200 rounded hover:bg-gray-300 focus:outline-none">
                     Cancel
                 </button>
-                <button @click="confirmSubmission"
+                <button type="button" @click="confirmSubmission"
                     class="px-4 py-2 font-bold text-white transition duration-150 ease-in-out bg-blue-600 rounded hover:bg-blue-700 focus:outline-none shadow-lg">
                     Yes, validate it!
                 </button>
@@ -490,7 +490,6 @@
         </div>
     </div>
 </div>
-
 
 <script>
     function orderApp(products) {
@@ -508,7 +507,6 @@
                 draggedIndex: null,
                 dragOffset: 0
             },
-            confirmModalOpen: false,
             editModalOpen: false,
             editingItem: null,
             editedItem: null,
